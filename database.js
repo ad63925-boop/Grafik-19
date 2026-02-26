@@ -23,6 +23,7 @@ function lsKeys(prefix) {
     return out;
 }
 
+// --- Универсальные функции для работы с JSON в localStorage ---
 function lsGetJSON(key) {
     try {
         return JSON.parse(localStorage.getItem(key));
@@ -38,9 +39,15 @@ function lsSetJSON(key, obj) {
 
 // сотрудники
 function getEmployees() {
-    return lsGetJSON("employees") || [];
+    try {
+        const data = lsGetJSON("employees");
+        return Array.isArray(data) ? data : [];
+    } catch {
+        return [];
+    }
 }
 
+// сохранение сотрудников
 function saveEmployees(data) {
     lsSetJSON("employees", data);
 }
