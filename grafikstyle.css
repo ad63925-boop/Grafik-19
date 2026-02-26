@@ -1,0 +1,608 @@
+
+    /* ---------- Страница под формат А4 ---------- */
+
+/* Базовые исправления для предотвращения вылета за края */
+* {
+    box-sizing: border-box;
+}
+
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #e0e0e0;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 2px;
+        display: block;  
+    }
+
+    #a4 {
+        background: #fff;
+        padding: 5px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.15);
+        border-radius: 8px;
+		text-align: center;
+		margin: auto; /* Просто небольшие отступы вместо авто-центрирования */
+		width: auto;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 26px;
+    }
+
+    /* ---------- Таблица ---------- */
+
+    table {
+        border-collapse: collapse;
+        background: white;
+        font-size: 20px;
+        width: 100%;
+        overflow: scroll;
+        box-shadow: 2px 3px 20px #000000;
+        
+    }
+
+    th, td {
+        border: 1px solid black;
+        text-align: center;
+    }
+
+    th {
+        background: #f1f1f1;
+        font-weight: 600;
+    }
+    
+	td {
+		padding: 0px;
+		margin: 0px;
+	}
+    
+    /* ---------- Кнопки ---------- */
+
+    .panel {
+        display: grid;
+        flex-wrap: wrap;
+        gap: 1px;
+        margin: 5px 0px 5px 0px;
+    }
+
+	#panelSeting{
+	width: 250px;
+    margin: auto;
+    padding-top: 5px;
+	}
+	
+    select {
+        appearance: none;
+        padding: 0;
+        margin: 0;
+        border: none;
+        background: #f0f8ff12;
+        text-align: center;
+    }
+    
+    .btn-graf, .monthPicker {
+        padding: 4px 7px;
+        background: #1976d2;
+        color: white;
+        cursor: pointer;
+        border: none;
+        font-size: 14px;
+        transition: 0.2s;
+        margin: 5px 0;
+    }
+
+    .monthPicker {
+        padding: 3px 7px;
+    }
+    .btn-graf:hover {
+        background: #0d47a1;
+    }
+
+.is-visible {
+	position: absolute;
+    background-color: #fffcfc;
+	border-radius: 10px;
+	padding: 1px;
+    margin: 3px;
+    box-shadow: -1px 2px 15px 3px black;
+    z-index: 99999;
+    top: 25%;
+    right: calc(50% - 125px);
+    height: 450px;
+    overflow-x: scroll;
+	}
+	
+    /* ---------- Цвета ---------- */
+
+    .gray { background: #ccc; }
+    .weekend { background: silver;}
+    .red { background: red !important; }
+    .highlight { background: #fff8b4 !important; }
+    .today { background: #ffe28a !important; }
+
+.is-hidden {
+  display: none !important; /* Используйте !important, если нужно гарантировать переопределение */
+}
+
+.table-wrapper {
+    max-height: 300px;      /* высота области просмотра */
+    overflow: auto;
+    border: 1px solid #ccc;
+}
+
+table {
+    border-collapse: collapse;
+    background: white;
+    font-size: 14px;
+    /* width: 100%; */
+}
+
+/* ---------- ФИКСАЦИЯ ШАПКИ ТАБЛИЦЫ ---------- */
+
+/* фиксированная верхняя строка */
+th {
+    position: sticky;
+    top: 0;
+    z-index: 0;
+    background: #f1f1f1;
+}
+
+/* фиксированная колонка № */
+th:first-child,
+td:first-child {
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 10000;
+    box-shadow: 2px 0 0 black; /* имитация правой границы */
+}
+
+/* фиксированная колонка ФИО */
+th:nth-child(2),
+td:nth-child(2) {
+    position: sticky;
+    left: 0px;
+    background: white;
+    z-index: 10000;
+    box-shadow: 2px 0 0 black;
+}
+
+.names{
+    width: 105px;
+	border: none;
+    color: white;
+    background-color:#000;
+    text-align: left;
+    padding: 0 2px;
+}
+
+/* Чтобы таблица занимала фактическую ширину */
+#scheduleTable {
+    min-width: max-content;
+}
+
+ /* 👇 НОВЫЙ СТИЛЬ ДЛЯ ВЫДЕЛЕНИЯ СТОЛБЦА */
+
+.highlight-column { 
+        background: #aae0ef !important; /* Светло-голубой цвет */
+    }
+    
+/* Настройка таблицы для мобилок */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;       /* Включаем горизонтальную прокрутку ТОЛЬКО для таблицы */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Адаптивность через Медиа-запросы */
+
+/* xs — телефоны */
+@media (max-width: 575.98px) {
+    body {
+        padding: 2px;
+    }
+    #a4 {
+        padding: 5px;
+        border-radius: 0;   /* На телефонах лучше без скруглений по бокам */
+    }
+    h2 {
+        font-size: 20px;    /* Уменьшаем заголовок на мобильных */
+    }
+    /* Убираем min-width, который вызывал принудительный зум */
+    table {
+        min-width: auto; 
+    }
+}
+
+/* sm — маленькие планшеты (от 576px) */
+@media (min-width: 576px) { 
+    #a4 { width: 95%; }
+}
+
+/* md — большие планшеты (от 768px) */
+@media (min-width: 768px) { 
+    #a4 { width: 90%; }
+}
+
+/* xl — мониторы (от 1200px) */
+@media (min-width: 1200px) { 
+    #a4 { width: 1200px; }
+}
+.row-Name-Security{
+	color: black;
+	border: 1px solid black;
+    background-color: white;
+}
+
+
+.btn-graf-option-edit {
+	background-color: #ffc107;
+}
+
+.btn-graf-option-delete {
+	background-color: red;
+}
+
+.btn-graf-option-edit, .btn-graf-option-delete {
+	margin: 2px;
+	border-radius: 5px;
+}
+
+.btn-graf-option-edit:hover, .btn-graf-option-delete:hover {
+	color: white;
+}
+
+.td-none{
+	border-bottom: none;
+}
+
+.td-month{
+	border-bottom: none;
+    color: white; 
+    background-color: black !important;   
+}
+
+.printScale{
+	border: 1px solid silver;
+    background-color: bisque;
+    text-align: center;
+}
+.printCopy {
+    text-align: center;
+}
+
+.panel-header {
+    position: sticky;
+    top: 0;
+    height: 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+    background-color: white;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #fc0202;
+}
+
+.btn-close:hover {
+    color: white;
+    background-color: red;
+}
+
+.employees-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+font-weight:bold;
+}
+
+.employees-header button{
+border:none;
+background:#ff4d4d;
+color:white;
+padding:4px 8px;
+cursor:pointer;
+border-radius:4px;
+}
+
+/* ---------- ПЕЧАТЬ ---------- */
+@media print {
+
+    body {
+        background: white !important;
+        margin: 0;
+        padding: 0;
+        display: block;
+    }
+	
+	#a4 {
+		width: 100%;
+        max-width: 100%;
+        padding: 0;
+        margin: 0 auto;
+        box-shadow: none;
+    }
+	
+	h2{
+	display: none;
+	}
+	
+    /* скрываем кнопки и панели */
+    .nav-container,
+    .side-menu,
+	.btn-graf-option-edit,
+	.btn-graf-option-delete,
+    .panel,
+    .panelMonth,
+    #btnSetting,
+    #panelSeting {
+        display: none !important;
+    }
+
+    /* убираем ограничения */
+    .table-wrapper {
+        max-height: none !important;
+        overflow: visible !important;
+        border: none;
+    }
+
+    table {
+        width: max-content !important;
+        font-size: 12px;
+        box-shadow: none !important;
+    }
+
+    th, td {
+        page-break-inside: avoid;
+    }
+
+    /* запрещаем разрыв строк сотрудников */
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    /* A4 альбом */
+    @page {
+        size: A4 landscape;
+        margin: 10mm;
+    }
+	
+	* {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+
+/* ---------- ЦВЕТА СМЕН ---------- */
+.shift-Д { background-color: silver; }  /* День */
+.shift-Н { background-color: silver; }  /* Ночь */
+.shift-У { background-color: white; }  /* Усиление */
+.shift-З { background-color: silver; }  /* Запас */
+.shift-О { background-image: linear-gradient(139deg, #000 20%, #c6c0c0 20%);}  /* Открытие */
+.shift-Т { background-color: silver; }  /* Тренинг */
+.shift-П { background-color: silver; }  /* Прогул */
+.shift-К { background-color: silver; }  /* Командировка */
+.shift-Р { background-color: silver; }  /* Резерв */
+.shift-Уо { background-image: linear-gradient(139deg, #000 20%, white 20%); }
+.shift-Уз { background-color: white; }
+.shift-Ун { background-color: white; }
+
+.shift-Н,
+.shift-П {
+    color: white;
+    font-weight: 600;
+}
+
+.employee-panel {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.employee-panel input,
+.employee-panel select,
+.employee-panel button {
+    padding: 4px 6px;
+}
+
+.batch-shift-form {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: white;
+    display: none; 
+    padding: 15px; 
+    border-radius: 8px;
+    width: 350px;
+    margin: 5px auto;
+    box-shadow: 1px 2px 3px;
+}
+
+.batch-shift-form-block {
+    display: block;
+}
+
+.batch-user-select{
+    text-align: center;
+    border: 1px dashed silver;
+    cursor: pointer;
+}
+
+.batch-shift-select{
+    text-align: center;
+    border: 1px dashed silver;
+    cursor: pointer;
+}
+
+.batch-date-select{
+    text-align: center;
+    width: 40px;
+    cursor: pointer;
+}
+
+.btn-set-close {
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 25%;
+}
+
+.batch-shift-form h4 {
+    text-align: center;
+    text-decoration: underline;
+}
+
+.batch-shift-form select {
+    background-color: silver;
+    text-align: center;
+}
+
+.btn-set-close button {
+    margin:  10px 10px;
+    padding: 5px; 
+    border-radius: 5px;
+    background-color: #1976d2;
+    color: white;
+
+}
+
+.btn-closes {
+    font-weight: bold;
+}
+
+.inputNewName { 
+    text-align: center;
+    border: 1px solid silver;
+    background-color: bisque;
+    width: 100%;
+
+}
+
+.selectName {
+    border: 1px solid black;
+    background-color: bisque;
+    width: 100%;
+}
+
+.btn-graf i {
+    margin-right: 6px;
+}
+
+.btn-graf i {
+    margin-right: 0;
+}
+
+#calendarView {
+  margin: 5px auto;  
+  padding:12px;
+  max-width: 600px;
+  min-width: 360px;
+  box-shadow: 2px 1px 15px 3px;
+  border-radius: 10px;
+  background-color: deepskyblue;
+}
+
+.calendar-header {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:10px;
+  gap: 10px;
+  background-color: #1976d2;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.calendar-header select{
+    border: 1px solid black;
+    background-color: bisque;
+    display: flex;
+    margin-right: 50px;
+}
+
+.calendar-header button {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+}
+.calendar-grid {
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:2px;
+}
+
+.calendar-cell {
+  min-height:80px;
+  border:1px solid #333;
+  padding:4px;
+  font-size:14px;
+}
+
+.calendar-cell .day {
+  opacity:.7;
+}
+
+.shift {
+  margin-top:4px;
+  background: silver;
+  border-radius:10px;
+  padding:2px 6px;
+  font-size:24px;
+  width: 100%;
+    height: 70%;
+    text-align: center;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.monthLabel {
+    color: white;
+}
+
+.cell-color-red {
+    background-color: #fc0202;
+    color: white;
+}
+
+.panel-hidden {
+    display: none;
+}
+
+.panel-visible {
+    display: block !important;
+    background-color: white;
+}
+
+.panel-visible h3 {
+    text-align: center;
+    margin-top: 0;
+    color: red;
+}
+
+.btn-option-edit {
+    background-color: #ffc107;
+    color: rgb(39, 113, 240);
+    border-radius: 5px;
+    width: 30px;
+}    
+
+.btn-option-delete {
+    background-color: red;
+    color: white;
+    border-radius: 5px;
+    width: 30px;
+}

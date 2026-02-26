@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль пользователя</title>
+	<link rel="stylesheet" href="../burgerMenu/menustyle.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Бургер -->
+<div class="burger" title="Меню">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<!-- Правое меню -->
+<div id="sideMenu" class="side-menu">
+  <a href="https://alexdemidenk0.neocities.org/">Главная</a>
+  <a href="https://alexdemidenk0.neocities.org/Recept_6.2">Рецепты</a>
+  <a href="https://alexdemidenk0.neocities.org/exchange_3.0">Курс валют</a>
+  <a href="https://alexdemidenk0.neocities.org/kalculator_2.0">Калькулятор</a>
+  <a href="https://alexdemidenk0.neocities.org/smeni_4.0">Календарь смен</a>
+  <a href="https://alexdemidenk0.neocities.org/primeri">Тренажер *-/+</a>
+  <a href="https://alexdemidenk0.neocities.org/people/people_card">Карточки ДР</a>
+  <a href="https://alexdemidenk0.neocities.org/docs/document">Документы</a>
+  
+ <div class="menu-bottom">
+  <a href="https://alexdemidenk0.neocities.org/possible">Возможности 📜</a>
+  <a href="mailto:ad63925@gmail.com">Написать нам 📧</a> 
+  </div>
+</div>
+
+     <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>Защищенная система</span>
+            </div>
+            <div class="nav-menu">
+                <a href="profile.html" class="nav-link"><i class="fas fa-user"></i> Профиль</a>
+                
+                <button class="nav-logout" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+            </div>
+        </div>
+    </nav>
+
+<hr>
+    <div class="container">
+        <div class="content-container">
+            <h1>Профиль</h1>
+                       <div class="user-info">
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <h2>Добро пожаловать, <span data-username>Пользователь</span>!</h2>
+                </div>
+            </div>
+
+            <div class="dashboard-cards">
+
+                <div class="card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>График</h3>
+                    <button class="card-btn"><a href="Grafik-19.html">Открыть</a></button>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>Инструкции</h3>
+                    
+                    <button class="card-btn"><a href="https://sites.google.com/view/alexdemidenk0/%D0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0">Открыть</a></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<script src="../burgerMenu/menu.js" defer></script>
+    <script src="js/auth.js"></script>
+    <script>
+        if (Auth.protectPage()) {
+            Auth.updateUI();
+        }
+    </script>
+</body>
+</html>

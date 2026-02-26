@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="grafikstyle.css">
+<link rel="stylesheet" href="../burgerMenu/menustyle.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3845/3845798.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<title>График охраны</title>
+</head>
+<body>
+
+     <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>Защищенная система</span>
+            </div>
+            <div class="nav-menu">
+                <a href="profile.html" class="nav-link"><i class="fas fa-user"></i> Профиль</a>
+                <button class="nav-logout" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+            </div>
+        </div>
+    </nav>
+	
+<!-- Бургер -->
+<div class="burger" title="Меню">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<!-- Правое меню -->
+<div id="sideMenu" class="side-menu">
+  <a href="https://alexdemidenk0.neocities.org/">Главная</a>
+  <a href="https://alexdemidenk0.neocities.org/recept/recept">Рецепты</a>
+  <a href="https://alexdemidenk0.neocities.org/exchange/exchange">Курс валют</a>
+  <a href="https://alexdemidenk0.neocities.org/calculatorMany/calculator">Калькулятор</a>
+  <a href="https://alexdemidenk0.neocities.org/primery/primery">Тренажер *-/+</a>
+  <a href="https://alexdemidenk0.neocities.org/people/people_card">Карточки ДР</a>
+  <a href="https://alexdemidenk0.neocities.org/docs/document">Документы</a>  
+  
+  <hr>
+  <a href="https://alexdemidenk0.neocities.org/possible">Возможности 📜</a>
+  <a href="mailto:ad63925@gmail.com">Написать нам 📧</a> 
+  </div>
+
+<hr>
+
+<div id="a4">
+
+<!-- Панель переключения месяцев -->
+<div class="panelMonth">
+    <button class="btn-graf" onclick="prevMonth()">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <input type="month" id="monthPicker" class="monthPicker" onchange="loadMonthFromPicker()">
+    <button class="btn-graf" onclick="nextMonth()">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <button class="btn-graf" onclick="goToday()">
+      <i class="fa-solid fa-calendar-days"></i>
+    </button>
+	<button class="btn-graf" id="btnSetting" onclick="openPanelSeting()">
+    <i class="fa-solid fa-gear"></i>
+  </button>
+      <button id="toggleViewBtn" class="btn-graf">
+        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+      </button>
+</div>
+
+<h2>График работы охраны Ш-19</h2>
+
+<div class="table-wrapper">
+    <table id="scheduleTable"></table>
+</div>
+
+<!-- График на одного охраника -->
+<div id="calendarView" hidden>
+
+  <div class="calendar-header">
+    <select id="guardSelect"></select>
+    
+    <button id="prevMonth">
+      <i class="fa-solid fa-angle-left"></i>
+    </button>
+    <span id="monthLabel" class="monthLabel"></span>
+    <button id="nextMonth">
+      <i class="fa-solid fa-angle-right"></i>
+    </button>
+  </div>
+
+  <div class="calendar-grid" id="calendarGrid"></div>
+</div>
+
+<br>
+
+</div><!-- A4 -->
+
+<!-- Панель настроек -->
+<div id="panelSeting" class="is-hidden">
+	<div class="panel-header">
+    <span><i class="fa-solid fa-gear"></i> Настройки</span>
+    <button class="btn-close" onclick="closeSettings()">
+      <i class="fa-solid fa-xmark">
+    </i></button>
+</div>
+
+<div class="panel">
+<input type="text" id="newEmployeeName" class="inputNewName" placeholder="+ Добавить сотрудника в базу">
+<button class="btn-graf" onclick="addEmployeeToList()">
+  <i class="fa-solid fa-plus"></i> В базу</button>
+<br>
+<select id="employeeSelect" class="selectName"></select>
+<button class="btn-graf" onclick="addEmployeeToTable()"><i class="fa-solid fa-plus"></i> В график отдельно</button>
+<button class="btn-graf" onclick="removeEmployeeFromList()"><i class="fa-solid fa-trash"></i> Удалить</button>
+<button class="btn-graf" onclick="showEmployeesPanel()"><i class="fa-solid fa-database"></i> База Сотрудников!</button>
+<button class="btn-graf" onclick="clearShifts()"><i class="fa-solid fa-broom"></i> Очистить смены</button>
+</div>
+
+<hr>
+
+<div class="panel">
+    <button id="screenshotBtn" class="btn-graf">
+      <i class="fa-regular fa-images"></i> Скриншот</button>
+</div>
+<hr>
+<!-- Шаблоны смен -->
+<div class="panel">
+    <button class="btn-graf" onclick="applyTemplateForOne('2_2')">
+      <i class="fa-solid fa-clone"></i> Шаблон 2д/2в</button>
+    <button class="btn-graf" onclick="applyTemplateForOne('4_2')">
+      <i class="fa-solid fa-clone"></i> Шаблон 4д/2в</button>
+    <button class="btn-graf" onclick="showapplyBatch()">
+      <i class="fa-regular fa-calendar-check"></i> Добавить смены</button>
+</div>
+<hr>
+
+<!-- Экспорт и импорт -->
+<div class="panel">
+    <button class="btn-graf" onclick="exportData()">
+      <i class="fa-solid fa-file-export"></i> Экспорт</button>
+    <button class="btn-graf" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-file-import"></i> Импорт</button>
+    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="importData(event)">
+</div>
+<hr>
+	<div class="panel">
+	<label for="printScale">Размер печати:</label>
+    <select id="printScale" class="printScale">
+        <option value="0.6">Маленький</option>
+        <option value="0.8" selected>Средний</option>
+        <option value="1">Большой</option>
+    </select>
+    <label for="copiInput">Копии:</label>
+    <input type="number" id="copiInput" class="printCopy" placeholder="1">
+    <button class="btn-graf" onclick="printSchedule()">
+      <i class="fa-solid fa-print"></i> Печать</button>
+	</div>
+
+</div>
+
+<!-- Назначение смен -->
+
+<!-- Назначение смен по датам -->
+<div id="batchShift" class="batch-shift-form">
+  <h4>Назначение смен</h4>
+
+  <!-- Выбор сотрудника -->
+  <div style="margin: 10px 0;">
+    <label>Сотрудник:</label><br>
+    <select id="batchEmpSelect" class="batch-user-select">
+      <!-- Опции заполняются JS -->
+    </select>
+  </div>
+
+  <!-- Выбор смены -->
+  <div style="margin: 10px 0;">
+    <label>Смена:</label><br>
+    <select id="batchShiftSelect" class="batch-shift-select">
+      <!-- Опции заполняются из SHIFT_TYPES -->
+    </select>
+  </div>
+
+  <!-- Выбор дат (multiple) -->
+  <div style="margin: 10px 0;">
+    <label>Даты:</label><br>
+    <select id="batchDatesSelect" multiple size="31" class="batch-date-select">
+      <!-- Опции: числа месяца -->
+    </select>
+  </div>
+
+  <div class="btn-set-close">
+    <button onclick="applyBatchShifts()">✅ Применить</button>
+    <button class="btn-closes" onclick="closeBath()">❌ Отмена</button>
+  </div>
+
+</div>
+
+ <!-- База сотрудников -->
+<div id="employeesPanel" class="panel-hidden" style="margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:8px;">
+
+  <div class="employees-header">
+    <span>База сотрудников</span>
+    <button onclick="closeEmployeesPanel()">✖</button>
+</div>
+  <div id="employeesList"></div>
+</div>
+
+<div id="print-container" style="display: none;"></div>
+
+
+	<script src="js/auth.js"></script>
+	<script>
+        // Защищаем страницу
+        if (Auth.protectPage()) {
+            // Обновляем интерфейс для авторизованного пользователя
+            Auth.updateUI();
+        }
+    </script>
+	
+	<script src="../burgerMenu/menu.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="database.js"></script>
+  <script src="employees.js"></script>
+  <script src="schedule.js"></script>
+  <script src="render.js"></script>
+  <script src="app.js"></script>
+  <script src="grafik_type_2.js"></script>
+</body>
+</html>

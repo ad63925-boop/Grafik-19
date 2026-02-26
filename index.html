@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в систему</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <div class="logo">
+                <i class="fas fa-lock"></i>
+                <h1>Вход в систему</h1>
+                <p class="subtitle">Введите данные для доступа</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-exclamation-circle"></i> Неверный логин или пароль
+            </div>
+            
+            <div class="input-group">
+                <label for="username"><i class="fas fa-user"></i> Имя пользователя</label>
+                <input type="text" id="username" placeholder="Введите ваше имя">
+            </div>
+            
+            <div class="input-group">
+                <label for="password"><i class="fas fa-key"></i> Пароль</label>
+                <input type="password" id="password" placeholder="Введите ваш пароль">
+            </div>
+            
+            <div class="options">
+                <div class="remember">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Запомнить меня</label>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="handleLogin()">Войти в систему</button>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Если пользователь уже авторизован, перенаправляем на dashboard
+        if (Auth.checkAuth()) {
+            window.location.href = 'profile.html';
+        }
+
+        function handleLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Простая проверка (замените на реальную аутентификацию)
+            if (username && password === '12345') {
+                Auth.login(username, rememberMe);
+            } else {
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Обработка нажатия Enter
+        document.getElementById('password').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    </script>
+</body>
+</html>
