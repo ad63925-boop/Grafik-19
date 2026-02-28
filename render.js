@@ -247,7 +247,6 @@ function renderEmployeesPanel() {
             </div>
             <div>
                 <button onclick="editEmployeeNameId(${emp.id})">✏</button>
-                <button onclick="deleteEmployeeForID(${emp.id})">❌</button>
             </div>
         `;
 
