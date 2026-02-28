@@ -8,7 +8,8 @@ function updateEmployeeSelect() {
     select.innerHTML = "";
 
     const list = getEmployees();
-
+console.log("LIST:", list);
+console.log("Is array:", Array.isArray(list));
     list.forEach((emp, index) => {
         const option = document.createElement("option");
         option.value = emp.id;
