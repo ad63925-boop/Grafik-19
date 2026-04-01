@@ -20,6 +20,10 @@ console.log("Is array:", Array.isArray(list));
     if (typeof initChoicesOn === 'function') initChoicesOn('#employeeSelect', { searchEnabled: true, shouldSort: false });
 }
 
+// Получение списка сотрудников из localStorage
+var BtnAddEmployeeToList = document.getElementById("BtnAddEmployeeToList");
+BtnAddEmployeeToList.addEventListener("click", addEmployeeToList);
+
 function addEmployeeToList() {
     const input = document.getElementById("newEmployeeName");
     if (!input) return;
@@ -50,6 +54,8 @@ function addEmployeeToList() {
     input.value = "";
 }
 
+var btnRemoveEmployeeFromList = document.getElementById("btnRemoveEmployeeFromList");
+btnRemoveEmployeeFromList.addEventListener("click", removeEmployeeFromList);
 function removeEmployeeFromList() {
     const select = document.getElementById("employeeSelect");
     if (!select) return;

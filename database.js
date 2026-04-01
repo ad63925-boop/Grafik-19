@@ -53,12 +53,12 @@ function saveEmployees(data) {
     lsSetJSON("employees", data);
 }
 
-// добавление сотрудника
+// добавление сотрудника исправить на добавление с id и сменой
 function addEmployee(name, id, shifting) {
     let employees = getEmployees();
 
     employees.push({
-        id: id,
+        id: new Date().getTime(), // уникальный id на основе времени
         name: name,
         shifting: shifting
     });

@@ -54,17 +54,17 @@
 
 <!-- Панель переключения месяцев -->
 <div class="panelMonth">
-    <button class="btn-graf" onclick="prevMonth()">
+    <button class="btn-graf" id="prevMonthBtn">
       <i class="fa-solid fa-chevron-left"></i>
     </button>
-    <input type="month" id="monthPicker" class="monthPicker" onchange="loadMonthFromPicker()">
-    <button class="btn-graf" onclick="nextMonth()">
+    <input type="month" id="monthPicker" class="monthPicker"  value="">
+    <button class="btn-graf" id="nextMonthBtn">
       <i class="fa-solid fa-chevron-right"></i>
     </button>
-    <button class="btn-graf" onclick="goToday()">
+    <button class="btn-graf" id="btnToDay">
       <i class="fa-solid fa-calendar-days"></i>
     </button>
-	<button class="btn-graf" id="btnSetting" onclick="openPanelSeting()">
+	<button class="btn-graf" id="btnSetting" >
     <i class="fa-solid fa-gear"></i>
   </button>
       <button id="toggleViewBtn" class="btn-graf">
@@ -104,21 +104,21 @@
 <div id="panelSeting" class="is-hidden">
 	<div class="panel-header">
     <span><i class="fa-solid fa-gear"></i> Настройки</span>
-    <button class="btn-close" onclick="closeSettings()">
+    <button class="btn-close" id="btnClosePanelSeting">
       <i class="fa-solid fa-xmark">
     </i></button>
 </div>
 
 <div class="panel">
 <input type="text" id="newEmployeeName" class="inputNewName" placeholder="+ Добавить сотрудника в базу">
-<button class="btn-graf" onclick="addEmployeeToList()">
+<button class="btn-graf" id="BtnAddEmployeeToList">
   <i class="fa-solid fa-plus"></i> В базу</button>
 <br>
 <select id="employeeSelect" class="selectName"></select>
-<button class="btn-graf" onclick="addEmployeeToTable()"><i class="fa-solid fa-plus"></i> В график отдельно</button>
-<button class="btn-graf" onclick="removeEmployeeFromList()"><i class="fa-solid fa-trash"></i> Удалить</button>
-<button class="btn-graf" onclick="showEmployeesPanel()"><i class="fa-solid fa-database"></i> База Сотрудников!</button>
-<button class="btn-graf" onclick="clearShifts()"><i class="fa-solid fa-broom"></i> Очистить смены</button>
+<button class="btn-graf" id="btnAddEmployeeToTable"><i class="fa-solid fa-plus"></i> В график отдельно</button>
+<button class="btn-graf" id="btnRemoveEmployeeFromList"><i class="fa-solid fa-trash"></i> Удалить</button>
+<button class="btn-graf" id="btnShowEmployeesPanel"><i class="fa-solid fa-database"></i> База Сотрудников!</button>
+<button class="btn-graf" id="btnClearShifts"><i class="fa-solid fa-broom"></i> Очистить смены</button>
 </div>
 
 <hr>
@@ -130,20 +130,20 @@
 <hr>
 <!-- Шаблоны смен -->
 <div class="panel">
-    <button class="btn-graf" onclick="applyTemplateForOne('2_2')">
+    <button class="btn-graf" id="btnApplyTemplateForOne4">
       <i class="fa-solid fa-clone"></i> Шаблон 2д/2в</button>
-    <button class="btn-graf" onclick="applyTemplateForOne('4_2')">
+    <button class="btn-graf" id="btnApplyTemplateForOne">
       <i class="fa-solid fa-clone"></i> Шаблон 4д/2в</button>
-    <button class="btn-graf" onclick="showapplyBatch()">
+    <button class="btn-graf" id="btnShowapplyBatchShift">
       <i class="fa-regular fa-calendar-check"></i> Добавить смены</button>
 </div>
 <hr>
 
 <!-- Экспорт и импорт -->
 <div class="panel">
-    <button class="btn-graf" onclick="exportData()">
+    <button class="btn-graf" id="btnExportData">
       <i class="fa-solid fa-file-export"></i> Экспорт</button>
-    <button class="btn-graf" onclick="document.getElementById('fileInput').click()">
+    <button class="btn-graf" id="btnImportData">
       <i class="fa-solid fa-file-import"></i> Импорт</button>
     <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="importData(event)">
 </div>
@@ -157,10 +157,9 @@
     </select>
     <label for="copiInput">Копии:</label>
     <input type="number" id="copiInput" class="printCopy" placeholder="1">
-    <button class="btn-graf" onclick="printSchedule()">
+    <button class="btn-graf" id="btnPrintSchedule">
       <i class="fa-solid fa-print"></i> Печать</button>
 	</div>
-
 </div>
 
 <!-- Назначение смен -->
@@ -194,8 +193,8 @@
   </div>
 
   <div class="btn-set-close">
-    <button onclick="applyBatchShifts()">✅ Применить</button>
-    <button class="btn-closes" onclick="closeBath()">❌ Отмена</button>
+    <button id="btnApplyBatchShifts">✅ Применить</button>
+    <button class="btn-closes" id="btnCloseBath">❌ Отмена</button>
   </div>
 
 </div>
@@ -205,7 +204,7 @@
 
   <div class="employees-header">
     <span>База сотрудников</span>
-    <button onclick="closeEmployeesPanel()">✖</button>
+    <button id="btnCloseEmployeesPanel">✖</button>
 </div>
   <div id="employeesList"></div>
 </div>

@@ -28,6 +28,8 @@ function updateShift(empId, day, val) {
     checkColumnRepeats();
 }
 
+var btnAddEmployeeToTable = document.getElementById("btnAddEmployeeToTable");
+btnAddEmployeeToTable.addEventListener("click", addEmployeeToTable);
 function addEmployeeToTable() {
 
     const select = document.getElementById("employeeSelect");
@@ -108,6 +110,8 @@ function duplicateEmployee(i) {
 }
 
 // Эта функция вызывается при клике на кнопку "Очистить смены"
+var btnClearShifts = document.getElementById("btnClearShifts");
+btnClearShifts.addEventListener("click", clearShifts);
 function clearShifts() {
     let data = lsGetJSON(getKey()) || [];
     data.forEach(e => e.shifts = {});
@@ -117,6 +121,16 @@ function clearShifts() {
 }
 
 // Эта функция вызывается при клике на кнопку применения шаблона для одного сотрудника
+var btnApplyTemplateForOne = document.getElementById("btnApplyTemplateForOne");
+btnApplyTemplateForOne.addEventListener("click", function() {
+    applyTemplateForOne('2_2');
+});
+
+var btnApplyTemplateForOne4 = document.getElementById("btnApplyTemplateForOne4");
+btnApplyTemplateForOne4.addEventListener("click", function() {
+    applyTemplateForOne('4_2');
+});
+
 function applyTemplateForOne(type) {
     let data = lsGetJSON(getKey()) || [];
     if (data.length === 0) return Swal.fire({
@@ -143,6 +157,8 @@ function applyTemplateForOne(type) {
 }
 
 //Добавление смен по датам
+var btnApplyBatchShifts = document.getElementById("btnApplyBatchShifts");
+btnApplyBatchShifts.addEventListener("click", applyBatchShifts);
 function applyBatchShifts() {
 
     const empId = Number(document.getElementById("batchEmpSelect").value);
@@ -195,9 +211,7 @@ function applyBatchShifts() {
   confirmButtonText: "OK"
 });
         return;
-    }
-        return;
-    }
+}
 
     if (!employee.shifts) employee.shifts = {};
 
@@ -215,7 +229,7 @@ function applyBatchShifts() {
   text: `Смены назначены (${selectedDates.length})`,
   confirmButtonText: "OK"
 });
-
+}
 
 // Эта функция сохраняет новое имя сотрудника в localStorage при изменении значения в input
 /*function saveName(i, name) {
@@ -262,7 +276,8 @@ function changeEmployeeInRow(rowIndex, newEmployeeId) {
 }
 
 /* ——— КНОПКА СЕГОДНЯ ——— */
-
+var todayBtn = document.getElementById("btnToDay");
+todayBtn.addEventListener("click", goToday);
 function goToday() {
     currentDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
     updatePicker();
@@ -270,6 +285,10 @@ function goToday() {
 }
 
 /* ——— МЕСЯЦЫ ——— */
+var prevMonthBtn = document.getElementById("prevMonthBtn");
+var nextMonthBtn = document.getElementById("nextMonthBtn");     
+prevMonthBtn.addEventListener("click", prevMonth);
+nextMonthBtn.addEventListener("click", nextMonth);
 
 function prevMonth() {
     currentDate.setMonth(currentDate.getMonth() - 1);
@@ -288,6 +307,8 @@ function updatePicker() {
         currentDate.getFullYear() + "-" + String(currentDate.getMonth()+1).padStart(2,"0");
 }
 
+var monthPicker = document.getElementById("monthPicker");
+monthPicker.addEventListener("change", loadMonthFromPicker);
 function loadMonthFromPicker() {
     let v = document.getElementById("monthPicker").value.split("-");
     currentDate = new Date(v[0], v[1]-1, 1);
@@ -401,6 +422,7 @@ function importData(event) {
 /* ——— ЛОГИКА ШАБЛОНОВ ДЛЯ 1 СОТРУДНИКА ——— */
 
 // Эта функция применяет заданный шаблон к одному сотруднику, начиная с указанной даты
+
 function applyPatternToEmployee(data, employeeId, type, startDay) {
 
     const year = currentDate.getFullYear();
@@ -424,4 +446,3 @@ function applyPatternToEmployee(data, employeeId, type, startDay) {
         pos = (pos + 1) % pattern.length;
     }
 }
-

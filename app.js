@@ -20,32 +20,33 @@ renderTable();
 // Вызываем инициализацию при загрузке страницы
 window.addEventListener("load", initBatchForm);
 
-// Переключение панели настроек
-function openPanelSeting() {
-const setingButton = document.getElementById('btnSetting');
-const panelSeting = document.getElementById('panelSeting');
 
-if (setingButton && panelSeting) {
-    setingButton.addEventListener('click', () => {
-        panelSeting.classList.toggle('is-hidden');
-        panelSeting.classList.add('is-visible');
-    });
+// Переключение панели настроек
+var btnSetting = document.getElementById("btnSetting");
+
+const panelSeting = document.getElementById('panelSeting');
+btnSetting.addEventListener("click", function() {
+    if (panelSeting.classList.contains('is-hidden')) {
+        panelSeting.classList.remove('is-hidden');  
 }
-};
+    else {
+        panelSeting.classList.add('is-hidden');
+    }
+});
 
 document.addEventListener("click", e => {
     const panel = document.getElementById("panelSeting");
     const btn = document.getElementById("btnSetting");
 
-    if (!panel.contains(e.target) && !btn.contains(e.target)) {
-        panel.classList.add("is-hidden");
-    }
+if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) {
+    panel.classList.add("is-hidden");
+}
 });
 
 // Предупреждение при попытке закрыть вкладку, если были изменения в графике
 window.addEventListener("beforeunload", function (e) {
 
-    if (!graphChanged) return;
+    if (!graphChanged) return undefined;
 
     const msg =
         "График был изменён.\nРекомендуется сделать экспорт данных.";
@@ -57,11 +58,13 @@ window.addEventListener("beforeunload", function (e) {
 });
 
 // Функция для печати графика с настройками масштаба и количеством копий
+var btnPrintSchedule = document.getElementById("btnPrintSchedule");
+btnPrintSchedule.addEventListener("click", printSchedule);
 function printSchedule() {
   const scale = document.getElementById("printScale").value;
   const table = document.getElementById("scheduleTable");
   const printContainer = document.getElementById("print-container");
-  const copiInput = document.getElementById('copiInput').value;
+  const copiInput = Number(document.getElementById('copiInput').value) || 1;
 
   // 1. Очищаем контейнер для печати
   printContainer.innerHTML = "";
@@ -137,7 +140,20 @@ function initBatchForm() {
     }
 }
 
-// Эта функция должна быть глобальной, так как вызывается через onclick
+// Эта функция должна быть глобальной, так как вызывается через
+var btnExportData = document.getElementById("btnExportData");
+btnExportData.addEventListener("click", exportData);
+
+var btnImportData = document.getElementById("btnImportData");
+btnImportData.addEventListener("click", function() {
+    document.getElementById("fileInput").click();
+});
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+}
+
 function exportData() {
     let dataToExport = {};
     const prefix = "schedule_";
@@ -179,19 +195,27 @@ function exportData() {
 }
 
 //Показ и скрытие формы
+var btnClosePanelSeting = document.getElementById("btnClosePanelSeting");
+btnClosePanelSeting.addEventListener("click", closeSettings);
 function closeSettings() {
     const panel = document.getElementById("panelSeting");
     panel.classList.add("is-hidden");
     panel.classList.remove("is-visible");
 }
 
-const panel = document.getElementById("employeesPanel");
 //Показать скрыть панель с сотрудниками
+const panel = document.getElementById("employeesPanel");
+
+var btnShowEmployeesPanel = document.getElementById("btnShowEmployeesPanel");
+btnShowEmployeesPanel.addEventListener("click", showEmployeesPanel);
+
 function showEmployeesPanel() {
     panel.style.display = "block";
 }
 
 // Эта функция вызывается при клике на кнопку закрытия панели сотрудников
+var btnCloseEmployeesPanel = document.getElementById("btnCloseEmployeesPanel");
+btnCloseEmployeesPanel.addEventListener("click", closeEmployeesPanel);
 function closeEmployeesPanel() {
     panel.style.display = "none";
 }

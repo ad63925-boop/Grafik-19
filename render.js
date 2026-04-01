@@ -67,13 +67,15 @@ function renderTable() {
     // Очищаем массив от null/undefined элементов
     data = data.filter(emp => emp !== null && emp !== undefined);
 
+    const allEmployees = getEmployees();
+
     // Строки сотрудников
     data.forEach((emp, i) => {
         if (!emp) return; // дополнительная защита
         const shifts = emp.shifts || {};
         table += `<tr id="rowNameSecurity_${i}" class="row-Name-Security">`;
         table += `<td onclick="highlightRow(${i})" style="cursor:pointer"><b>${i + 1}</b></td>`;
-        const allEmployees = getEmployees();
+        
 
         table += `<td>
 <select class="names" title="ID: ${emp.id}" onchange="changeEmployeeInRow(${i}, this.value)">
@@ -254,7 +256,14 @@ function renderEmployeesPanel() {
     });
 }
 
+//показ формы редактирования сотрудника
+var bathShift = document.getElementById("batchShift");
+
+
+
 //Скрытие формы
+var btnCloseBath = document.getElementById("btnCloseBath");
+btnCloseBath.addEventListener("click", closeBath);
 function closeBath(){
     batchShift.classList.remove('batch-shift-form-block');
     panelSeting.classList.remove('batch-shift-form');
