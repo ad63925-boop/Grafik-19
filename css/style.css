@@ -305,3 +305,8 @@ h1 {
 .is-hidden {
     display: none;
 }
+
+select:hover {
+    background-color: #2575fc;
+    cursor: pointer;
+}
