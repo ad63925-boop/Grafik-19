@@ -37,7 +37,7 @@ function lsSetJSON(key, obj) {
 }
 
 //localStorage.removeItem("employees"); // очистка для тестов
-console.log("Employees in storage:", getEmployees());
+//console.log("Employees in storage:", getEmployees());
 // сотрудники
 function getEmployees() {
     try {

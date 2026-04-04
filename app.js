@@ -206,24 +206,106 @@ btnImportData.addEventListener("click", function() {
     document.getElementById("fileInput").click();
 });
 
+// Обработчик выбора файла
+document.getElementById("fileInput").addEventListener("change", importData);
+
 function importData(event) {
     const file = event.target.files[0];
-    if (!file) return;
+    if (!file) {
+        Swal.fire({
+            icon: "error",
+            title: "Ошибка",
+            text: "Файл не выбран"
+        });
+        return;
+    }
+
+    // Проверяем тип файла
+    if (file.type !== "application/json") {
+        Swal.fire({
+            icon: "error",
+            title: "Ошибка",
+            text: "Пожалуйста, выберите JSON-файл"
+        });
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+
+            // Подтверждение перезаписи
+            Swal.fire({
+                title: "Подтверждение импорта",
+                text: "Это перезапишет существующие данные. Продолжить?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Да, импортировать"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Импортируем данные в LocalStorage
+                    Object.keys(importedData).forEach(key => {
+                        localStorage.setItem(key, JSON.stringify(importedData[key]));
+                    });
+
+                    Swal.fire({
+                icon: "success",
+                title: "Импорт выполнен",
+                text: "Данные успешно импортированы"
+            });
+
+            // Обновляем интерфейс
+            updateEmployeeSelect();
+            renderTable();
+            loadGuards();
+            renderCalendar();
+                }
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Ошибка импорта",
+                text: "Некорректный формат JSON-файла"
+            });
+            console.error("Ошибка импорта:", error);
+        }
+    };
+    reader.onerror = () => {
+        Swal.fire({
+            icon: "error",
+            title: "Ошибка чтения файла",
+            text: "Не удалось прочитать выбранный файл"
+        });
+    };
+    reader.readAsText(file);
 }
+
 
 function exportData() {
     let dataToExport = {};
     const prefix = "schedule_";
 
-    // 1. Экспорт всех schedule_* и сотрудников
-    lsKeys(prefix).forEach(key => {
-        dataToExport[key] = lsGet(key);
+    // Получаем все ключи из LocalStorage, начинающиеся с префикса
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith(prefix)) {
+            try {
+                dataToExport[key] = JSON.parse(localStorage.getItem(key));
+            } catch (e) {
+                console.error(`Ошибка парсинга данных для ключа ${key}:`, e);
+            }
+        }
     });
 
-    const employees = lsGet("employees");
-    if (employees) dataToExport["employees"] = employees;
+    // Добавляем сотрудников, если есть
+    try {
+        const employees = JSON.parse(localStorage.getItem("employees"));
+        if (employees) dataToExport["employees"] = employees;
+    } catch (e) {
+        console.warn("Не удалось загрузить сотрудников:", e);
+    }
 
-    // 3. Создаем файл
+    // Создаём файл
     const jsonString = JSON.stringify(dataToExport, null, 2);
     const blob = new Blob([jsonString], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -231,12 +313,9 @@ function exportData() {
     const a = document.createElement("a");
     a.href = url;
 
+    // Корректная генерация имени файла
     const d = new Date();
-    const filenameDate = `${d.getDate().toString().padStart(2,'0')}-${(d.getMonth()+1)
-        .toString().padStart(2,'0')}-${d.getFullYear()}_${d.getHours()
-        .toString().padStart(2,'0')}.${d.getMinutes()
-        .toString().padStart(2,'0')}`;
-
+    const filenameDate = `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}_${d.getHours().toString().padStart(2, '0')}.${d.getMinutes().toString().padStart(2, '0')}`;
     a.download = `График_${filenameDate}.json`;
 
     document.body.appendChild(a);
@@ -245,11 +324,12 @@ function exportData() {
     URL.revokeObjectURL(url);
 
     Swal.fire({
-  icon: "warning",
-  title: "Внимание",
-  text: "График и сотрудники успешно"
-});
+        icon: "success",
+        title: "Экспорт выполнен",
+        text: "График и сотрудники успешно экспортированы"
+    });
 }
+
 
 //Показ и скрытие формы
 var btnClosePanelSeting = document.getElementById("btnClosePanelSeting");
