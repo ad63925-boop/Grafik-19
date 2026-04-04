@@ -156,80 +156,6 @@ function applyTemplateForOne(type) {
     renderTable();
 }
 
-//Добавление смен по датам
-var btnApplyBatchShifts = document.getElementById("btnApplyBatchShifts");
-btnApplyBatchShifts.addEventListener("click", applyBatchShifts);
-function applyBatchShifts() {
-
-    const empId = Number(document.getElementById("batchEmpSelect").value);
-    const shiftValue = document.getElementById("batchShiftSelect").value;
-
-    const selectedDates = Array.from(
-        document.getElementById("batchDatesSelect").selectedOptions
-    ).map(opt => Number(opt.value));
-
-    if (!empId) {
-        Swal.fire({
-  icon: "warning",
-  title: "Внимание",
-  text: "Выберите сотрудника",
-  confirmButtonText: "OK"
-});
-        return;
-    }
-
-    if (!shiftValue) {
-        Swal.fire({
-  icon: "warning",
-  title: "Внимание",
-  text: "Выберите смену",
-  confirmButtonText: "OK"
-});
-        return;
-    }
-
-    if (selectedDates.length === 0) {
-        Swal.fire({
-  icon: "warning",
-  title: "Внимание",
-  text: "Выберите даты",
-  confirmButtonText: "OK"
-});
-        return;
-    }
-
-    const key = getKey();
-    let data = lsGetJSON(key) || [];
-
-    const employee = data.find(e => e.id === empId);
-
-    if (!employee) {
-        Swal.fire({
-  icon: "warning",
-  title: "Внимание",
-  text: "Этот сотрудник не добавлен в график этого месяца",
-  confirmButtonText: "OK"
-});
-        return;
-}
-
-    if (!employee.shifts) employee.shifts = {};
-
-    selectedDates.forEach(day => {
-        employee.shifts[day] = shiftValue;
-    });
-
-    lsSetJSON(key, data);
-
-    renderTable();
-
-    Swal.fire({
-  icon: "success",
-  title: "Успешно",
-  text: `Смены назначены (${selectedDates.length})`,
-  confirmButtonText: "OK"
-});
-}
 
 // Эта функция сохраняет новое имя сотрудника в localStorage при изменении значения в input
 /*function saveName(i, name) {
@@ -315,7 +241,7 @@ function loadMonthFromPicker() {
     renderTable();
 }
 
-// Эта функция вызывается при клике на кнопку редактирования сотрудника и позволяет изменить его имя
+//Удаление сотрудника по id
 function deleteEmployeeForID(employeeId) {
 
     if (!confirm("Удалить сотрудника?")) return;
@@ -323,7 +249,6 @@ function deleteEmployeeForID(employeeId) {
     let employees = getEmployees();
     employees = employees.filter(e => e.id !== employeeId);
     saveEmployees(employees);
-
     renderEmployeesPanel();
     renderTable();
 }
@@ -341,7 +266,6 @@ function editEmployeeNameId(employeeId) {
     if (newName && newName.trim() !== "") {
         emp.name = newName.trim();
         saveEmployees(employees);
-
         renderEmployeesPanel();
         renderTable();
     }

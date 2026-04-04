@@ -55,23 +55,70 @@ function addEmployeeToList() {
 }
 
 var btnRemoveEmployeeFromList = document.getElementById("btnRemoveEmployeeFromList");
-btnRemoveEmployeeFromList.addEventListener("click", removeEmployeeFromList);
+if (btnRemoveEmployeeFromList) {
+  btnRemoveEmployeeFromList.addEventListener("click", removeEmployeeFromList);
+}
+
 function removeEmployeeFromList() {
-    const select = document.getElementById("employeeSelect");
-    if (!select) return;
+  const select = document.getElementById("employeeSelect");
+  if (!select) {
+    showNotification('error', 'Элемент выбора сотрудников не найден');
+    return;
+  }
 
-    const selectedId = select.value;
-    const list = getEmployees();
-    const index = list.findIndex(e => e.id == selectedId);
+  const selectedId = select.value;
 
-    if (index === -1) return;
+  // Проверка: выбран ли сотрудник
+  if (!selectedId) {
+    showNotification('warning', 'Выберите сотрудника для удаления');
+    return;
+  }
 
-    if (!confirm("Удалить сотрудника из списка?")) return;
+  const list = getEmployees();
+  // Используем строгое сравнение с приведением типа
+  const index = list.findIndex(e => String(e.id) === selectedId);
 
+  if (index === -1) {
+    showNotification('error', 'Сотрудник не найден в списке');
+    return;
+  }
+
+  // Подтверждение удаления с указанием имени сотрудника
+  const employeeName = list[index].name;
+  if (!confirm(`Удалить сотрудника "${employeeName}" из списка?`)) {
+    return;
+  }
+
+  try {
+    // Удаляем сотрудника из массива
     list.splice(index, 1);
 
+    // Сохраняем обновлённый список
     saveEmployees(list);
 
+    // Обновляем интерфейс
     updateEmployeeSelect();
     renderEmployeesPanel();
+
+    // Уведомление об успехе
+    showNotification('success', `Сотрудник "${employeeName}" удалён из списка`);
+  } catch (error) {
+    console.error('Ошибка при удалении сотрудника:', error);
+    showNotification('error', 'Ошибка при удалении сотрудника. Проверьте консоль.');
+  }
+}
+
+
+function showNotification(type, message) {
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      icon: type,
+      title: type === 'success' ? 'Успех' :
+           type === 'warning' ? 'Внимание' : 'Ошибка',
+      text: message,
+      confirmButtonText: 'OK'
+    });
+  } else {
+    alert(message);
+  }
 }

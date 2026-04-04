@@ -140,7 +140,64 @@ function initBatchForm() {
     }
 }
 
-// Эта функция должна быть глобальной, так как вызывается через
+//Добавление смен по датам и сотрудникам
+document.addEventListener('DOMContentLoaded', function() {
+    const showBatchBtn = document.getElementById('btnShowapplyBatchShift');
+    const closeBtn = document.getElementById('btnCloseBath');
+    const batchPanel = document.getElementById('batchShift');
+
+    function populateBatchForm() {
+        const empSelect = document.getElementById('batchEmpSelect');
+        const shiftSelect = document.getElementById('batchShiftSelect');
+        const dateSelect = document.getElementById('batchDatesSelect');
+
+        empSelect.innerHTML = '<option value="">-- выбрать --</option>';
+        shiftSelect.innerHTML = '';
+        dateSelect.innerHTML = '';
+
+        const employees = getEmployees();
+        employees.forEach(emp => {
+            const option = document.createElement('option');
+            option.value = emp.id;
+            option.textContent = emp.name;
+            empSelect.appendChild(option);
+        });
+
+        SHIFT_TYPES.forEach(shift => {
+            const option = document.createElement('option');
+            option.value = shift;
+            option.textContent = shift;
+            shiftSelect.appendChild(option);
+        });
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let day = 1; day <= daysInMonth; day++) {
+            const option = document.createElement('option');
+            option.value = day;
+            option.textContent = day;
+            dateSelect.appendChild(option);
+        }
+    }
+
+    if (showBatchBtn && batchPanel) {
+        showBatchBtn.addEventListener('click', function() {
+            batchPanel.classList.add('batch-shift-form-block');
+            panelSeting.classList.toggle('is-hidden');
+            populateBatchForm();
+        });
+    }
+
+    if (closeBtn && batchPanel) {
+        closeBtn.addEventListener('click', function() {
+            batchPanel.classList.remove('batch-shift-form-block');
+            panelSeting.classList.toggle('is-hidden');
+        });
+    }
+});
+
+//Экспорт и импорт данных
 var btnExportData = document.getElementById("btnExportData");
 btnExportData.addEventListener("click", exportData);
 
@@ -210,7 +267,10 @@ var btnShowEmployeesPanel = document.getElementById("btnShowEmployeesPanel");
 btnShowEmployeesPanel.addEventListener("click", showEmployeesPanel);
 
 function showEmployeesPanel() {
-    panel.style.display = "block";
+    employeesPanel.style.display = "block";
+    panelSeting.classList.add("is-hidden");
+    updateEmployeeSelect();
+    renderEmployeesPanel();
 }
 
 // Эта функция вызывается при клике на кнопку закрытия панели сотрудников

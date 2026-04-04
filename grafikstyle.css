@@ -100,6 +100,7 @@
     }
 
 .is-visible {
+    display: block !important;
 	position: absolute;
     background-color: #fffcfc;
 	border-radius: 10px;

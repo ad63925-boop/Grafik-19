@@ -256,9 +256,121 @@ function renderEmployeesPanel() {
     });
 }
 
-//показ формы редактирования сотрудника
-var bathShift = document.getElementById("batchShift");
+/*
+// Показ формы для добавления смены
+var BtnAddBatchShift = document.getElementById("BtnAddBatchShift");
+if (BtnAddBatchShift) {
+    BtnAddBatchShift.addEventListener("click", showBatchShiftForm);
+} else {
+    console.warn('Элемент "BtnAddBatchShift" не найден');
+}
 
+// Добавление смен по датам
+var btnApplyBatchShifts = document.getElementById("btnApplyBatchShifts");
+if (btnApplyBatchShifts) {
+    btnApplyBatchShifts.addEventListener("click", applyBatchShifts);
+} else {
+    console.warn('Элемент "btnApplyBatchShifts" не найден');
+}
+
+function applyBatchShifts() {
+    const batchEmpSelect = document.getElementById("batchEmpSelect");
+    const batchShiftSelect = document.getElementById("batchShiftSelect");
+    const batchDatesSelect = document.getElementById("batchDatesSelect");
+
+    // Проверка существования элементов
+    if (!batchEmpSelect || !batchShiftSelect || !batchDatesSelect) {
+        console.error('Один из элементов формы не найден');
+        return;
+    }
+
+    const empId = Number(batchEmpSelect.value);
+    const shiftValue = batchShiftSelect.value;
+
+    const selectedDates = Array.from(
+        batchDatesSelect.selectedOptions
+    ).map(opt => Number(opt.value));
+
+    // Валидация входных данных
+    if (!empId || isNaN(empId)) {
+        Swal.fire({
+            icon: "warning",
+            title: "Внимание",
+            text: "Выберите сотрудника",
+            confirmButtonText: "OK"
+        });
+        return;
+    }
+
+    if (!shiftValue) {
+        Swal.fire({
+            icon: "warning",
+            title: "Внимание",
+            text: "Выберите смену",
+            confirmButtonText: "OK"
+        });
+        return;
+    }
+
+    if (selectedDates.length === 0) {
+        Swal.fire({
+            icon: "warning",
+            title: "Внимание",
+            text: "Выберите даты",
+            confirmButtonText: "OK"
+        });
+        return;
+    }
+
+    // Удаление дубликатов дат и фильтрация некорректных значений
+    const uniqueDates = [...new Set(selectedDates)].filter(day =>
+        !isNaN(day) && day > 0 && day <= new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
+    );
+
+    if (uniqueDates.length === 0) {
+        Swal.fire({
+            icon: "warning",
+            title: "Внимание",
+            text: "Выбранные даты некорректны",
+            confirmButtonText: "OK"
+        });
+        return;
+    }
+
+    const key = getKey();
+    let data = lsGetJSON(key) || [];
+
+    const employee = data.find(e => e.id === empId);
+
+    if (!employee) {
+        Swal.fire({
+            icon: "warning",
+            title: "Внимание",
+            text: "Этот сотрудник не добавлен в график этого месяца",
+            confirmButtonText: "OK"
+        });
+        return;
+    }
+
+    if (!employee.shifts) employee.shifts = {};
+
+    // Обновление смен для выбранных дат
+    uniqueDates.forEach(day => {
+        employee.shifts[day] = shiftValue;
+    });
+
+    lsSetJSON(key, data);
+
+    renderTable();
+
+    Swal.fire({
+        icon: "success",
+        title: "Успешно",
+        text: `Смены назначены (${uniqueDates.length})`,
+        confirmButtonText: "OK"
+    });
+}
+*/
 
 
 //Скрытие формы
@@ -266,7 +378,7 @@ var btnCloseBath = document.getElementById("btnCloseBath");
 btnCloseBath.addEventListener("click", closeBath);
 function closeBath(){
     batchShift.classList.remove('batch-shift-form-block');
-    panelSeting.classList.remove('batch-shift-form');
+    panelSeting.classList.toggle('is-hidden');
 }
 
 //---СКРИНШОТ---
