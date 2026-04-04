@@ -7,6 +7,11 @@ let calendarScheduleData = {};
 var scheduleTable = document.getElementById("scheduleTable");
 var calendarView = document.getElementById("calendarView");
 var toggleViewBtn = document.getElementById("toggleViewBtn");
+var prevMonths = document.getElementById("prevMonth");//Кнопка
+var nextMonths = document.getElementById("nextMonth");//Кнопка
+var calendarGrid = document.getElementById("calendarGrid");//Сетка календаря
+var monthLabel = document.getElementById("monthLabel");
+var guardSelect = document.getElementById("guardSelect");
 
 toggleViewBtn.onclick = () => {
   scheduleTable.hidden = !scheduleTable.hidden;
@@ -63,21 +68,23 @@ function loadScheduleDataForDate(date) {
 
 /* ===== ЗАПОЛНЕНИЕ SELECT ===== */
 function loadGuards() {
+    if (!guardSelect) return;
 
-  guardSelect.innerHTML = "";
+    const employees = getEmployees();
+    guardSelect.innerHTML = '';
 
-  Object.keys(calendarScheduleData).forEach(id => {
+    employees.forEach(emp => {
+        const opt = document.createElement("option");
+        opt.value = emp.id; // ID — только в value
+        opt.textContent = emp.name || `Охранник ${emp.id}`; // Имя — в тексте опции
+        if (emp.id === currentGuard) opt.selected = true;
+        guardSelect.appendChild(opt);
 
-    const opt = document.createElement("option");
-    opt.value = id;
-    opt.textContent = calendarScheduleData[id].name || id;
-
-    guardSelect.appendChild(opt);
-
-  });
-
-  currentGuard = guardSelect.value;
-  if (typeof initChoicesOn === 'function') initChoicesOn('#guardSelect', { searchEnabled: true, shouldSort: false });
+    });
+    // Инициализируем выборщик, если функция доступна
+    if (typeof initChoicesOn === 'function') {
+        initChoicesOn('#guardSelect', { searchEnabled: true, shouldSort: false });
+    }
 }
 
 /* ===== РЕНДЕР КАЛЕНДАРЯ ===== */
@@ -122,40 +129,75 @@ function renderCalendar() {
 
 /* ===== НАВИГАЦИЯ ===== */
 
-prevMonth.onclick = () => {
+/* ===== НАВИГАЦИЯ ===== */
+prevMonths.addEventListener('click', () => {
+    calendar2Date.setMonth(calendar2Date.getMonth() - 1);
+    renderCalendar();
+});
 
-  calendar2Date.setMonth(calendar2Date.getMonth() - 1);
+nextMonths?.addEventListener('click', () => {
+    calendar2Date.setMonth(calendar2Date.getMonth() + 1);
+    renderCalendar();
+});
 
-  calendarScheduleData = loadScheduleDataForDate(calendar2Date);
-
-  loadGuards();
-  renderCalendar();
-
-};
-
-nextMonth.onclick = () => {
-  calendar2Date.setMonth(calendar2Date.getMonth() + 1);
-  calendarScheduleData = loadScheduleDataForDate(calendar2Date);
-  loadGuards();
-  renderCalendar();
-
-  if (guardSelect && guardSelect.value) {
-    renderGuardPreview(guardSelect.value);
-  }
-};
-
+// Смена охранника
 guardSelect.onchange = () => {
+    currentGuard = guardSelect.value;
 
-  currentGuard = guardSelect.value;
+    // Находим имя выбранного охранника
+    const employees = getEmployees();
+    const selectedEmployee = employees.find(emp => emp.id === currentGuard);
+    const guardName = selectedEmployee ? selectedEmployee.name : 'Неизвестный охранник';
 
-  renderCalendar();
-  renderGuardPreview(currentGuard);
+    // Обновляем какой‑либо элемент с именем охранника (если есть)
+    const guardNameDisplay = document.getElementById('guardNameDisplay');
+    if (guardNameDisplay) {
+        guardNameDisplay.textContent = guardName;
+    }
 
+    renderGuardPreview(currentGuard);
+    renderCalendar();
 };
+
+/* ===== ПРЕДПРОСМОТР ГРАФИКА ОХРАННИКА ===== */
+
+function renderGuardPreview(guardId) {
+    const monthLabel = document.getElementById('monthLabel');
+    const guardSelect = document.getElementById('guardSelect');
+
+    if (!monthLabel || !guardSelect) {
+        console.error('Элементы календаря не найдены');
+        return;
+    }
+
+    // Обновляем заголовок месяца
+    const monthNames = [
+        'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+    ];
+    monthLabel.textContent = `${monthNames[calendar2Date.getMonth()]} ${calendar2Date.getFullYear()}`;
+
+    // Заполняем список охранников
+    const employees = getEmployees();
+    guardSelect.innerHTML = '';
+    employees.forEach(emp => {
+        const option = document.createElement('option');
+        option.value = emp.id;
+        option.textContent = emp.name || `Охранник ${emp.id}`;
+        if (emp.id === guardId) option.selected = true;
+        guardSelect.appendChild(option);
+    });
+}
 
 /* ===== СТАРТ ===== */
 
 calendarScheduleData = loadScheduleDataForDate(calendar2Date);
+
+// Устанавливаем первого охранника по умолчанию
+const employees = getEmployees();
+if (employees.length > 0) {
+    currentGuard = employees[0].id;
+}
 
 loadGuards();
 renderCalendar();
