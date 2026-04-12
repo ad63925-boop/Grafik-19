@@ -39,18 +39,23 @@ function lsSetJSON(key, obj) {
 //localStorage.removeItem("employees"); // очистка для тестов
 //console.log("Employees in storage:", getEmployees());
 // сотрудники
-function getEmployees() {
+async function getEmployees() {
     try {
-        const data = lsGetJSON("employees");
-        return Array.isArray(data) ? data : [];
-    } catch {
-        return [];
-    }
+        const snapshot = await dbGet(dbRef(db, "employees"));
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            lsSetJSON("employees", data);
+            return data;
+        }
+    } catch (e) {}
+
+    return lsGetJSON("employees") || [];
 }
 
 // сохранение сотрудников
-function saveEmployees(data) {
+async function saveEmployees(data) {
     lsSetJSON("employees", data);
+    dbSet(dbRef(db, "employees"), data);
 }
 
 // добавление сотрудника исправить на добавление с id и сменой
@@ -72,13 +77,47 @@ function getKey() {
 }
 
 // данные месяца
-function getMonthData() {
-    const data = lsGetJSON(getKey()) || [];
-    return Array.isArray(data) ? data.filter(d => d !== null && d !== undefined) : [];
+async function getMonthData() {
+    const key = getKey();
+
+    // пробуем из Firebase
+    try {
+        const snapshot = await dbGet(dbRef(db, key));
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            lsSetJSON(key, data); // кеш
+            return data;
+        }
+    } catch (e) {
+        console.warn("Firebase недоступен, берём localStorage");
+    }
+
+    // fallback
+    return lsGetJSON(key) || [];
 }
 
 function saveMonthData(data) {
-    lsSetJSON(getKey(), data);
+    const key = getKey();
+
+    // локально
+    lsSetJSON(key, data);
+
+    // в Firebase
+    dbSet(dbRef(db, key), data);
+}
+
+//Реальная синхронизация (ВАЖНО)
+function syncMonth() {
+    const key = getKey();
+
+    dbOnValue(dbRef(db, key), (snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+
+            lsSetJSON(key, data);
+            renderTable(); // обновляем таблицу
+        }
+    });
 }
 
 //сохранение смены когда выбираешь смену:
@@ -136,3 +175,5 @@ function refreshChoices(selector, options) {
     destroyChoicesOn(selector);
     initChoicesOn(selector, options);
 }
+
+syncMonth();
