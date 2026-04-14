@@ -39,23 +39,18 @@ function lsSetJSON(key, obj) {
 //localStorage.removeItem("employees"); // очистка для тестов
 //console.log("Employees in storage:", getEmployees());
 // сотрудники
-async function getEmployees() {
+function getEmployees() {
     try {
-        const snapshot = await dbGet(dbRef(db, "employees"));
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            lsSetJSON("employees", data);
-            return data;
-        }
-    } catch (e) {}
-
-    return lsGetJSON("employees") || [];
+        const data = lsGetJSON("employees");
+        return Array.isArray(data) ? data : [];
+    } catch {
+        return [];
+    }
 }
 
 // сохранение сотрудников
-async function saveEmployees(data) {
+function saveEmployees(data) {
     lsSetJSON("employees", data);
-    dbSet(dbRef(db, "employees"), data);
 }
 
 // добавление сотрудника исправить на добавление с id и сменой
@@ -75,38 +70,36 @@ function addEmployee(name, id, shifting) {
 function getKey() {
     return "schedule_" + currentDate.getFullYear() + "_" + currentDate.getMonth();
 }
-
+/*
 // данные месяца
+function getMonthData() {
+    const data = lsGetJSON(getKey()) || [];
+    return Array.isArray(data) ? data.filter(d => d !== null && d !== undefined) : [];
+}
+*/
+
+//Загрузка данных из Firebase
 async function getMonthData() {
     const key = getKey();
+    let snapshot = null; // Инициализируем
 
     // пробуем из Firebase
     try {
         const snapshot = await dbGet(dbRef(db, key));
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            lsSetJSON(key, data); // кеш
-            return data;
-        }
+    // fallback
+    if (snapshot.exists()) {
+  const data = snapshot.val();
+  if (data && data.length > 0) { // или другая проверка
+    lsSetJSON(key, data);
+    return data;
+  }
+}
     } catch (e) {
         console.warn("Firebase недоступен, берём localStorage");
     }
-
-    // fallback
-    return lsGetJSON(key) || [];
 }
 
-function saveMonthData(data) {
-    const key = getKey();
-
-    // локально
-    lsSetJSON(key, data);
-
-    // в Firebase
-    dbSet(dbRef(db, key), data);
-}
-
-//Реальная синхронизация (ВАЖНО)
+// Синхронизация при запкуске и при изменеии данных в firebase
 function syncMonth() {
     const key = getKey();
 
@@ -118,6 +111,19 @@ function syncMonth() {
             renderTable(); // обновляем таблицу
         }
     });
+}
+
+//Сохранение данных в облако
+function saveMonthData(data) {
+    const key = getKey();
+
+    // локально
+    lsSetJSON(key, data);
+
+    // в Firebase
+    dbSet(dbRef(db, key), data);
+
+    console.log("Month data saved:", data);
 }
 
 //сохранение смены когда выбираешь смену:
@@ -175,5 +181,3 @@ function refreshChoices(selector, options) {
     destroyChoicesOn(selector);
     initChoicesOn(selector, options);
 }
-
-syncMonth();
