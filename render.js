@@ -4,136 +4,143 @@
 
 function renderTable() {
 
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+const year = currentDate.getFullYear();
+const month = currentDate.getMonth();
 
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    const directory = getEmployees();
+const directory = getEmployees();
 
-    let data = getMonthData();
+let data = getMonthData();
 
-    if (!Array.isArray(data)) data = [];
+if (!Array.isArray(data)) data = [];
 
-    const dayNames = ["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];
-    const monthName = `${currentDate.toLocaleString('ru-RU', { month: 'long' }).toUpperCase()} ${currentDate.getFullYear()}`;
-  
+const dayNames = ["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];
+const monthName = `${currentDate.toLocaleString('ru-RU', { month: 'long' }).toUpperCase()} ${currentDate.getFullYear()}`;
 
-        // Шапка: первая строка (название месяца + дни недели)
-    let table = `
-        <tr>
-            <th class="td-none"></th>
-            <th class="td-month">${monthName}</th>
-    `;
 
-    for (let d = 1; d <= daysInMonth; d++) {
-        const dt = new Date(year, month, d);
-        const dayIndex = dt.getDay();
-        const isWeekend = (dayIndex === 0 || dayIndex === 6);
-        const isToday = (d === todayDate.getDate() && month === todayDate.getMonth() && year === todayDate.getFullYear());
+// Шапка: первая строка (название месяца + дни недели)
+let table = `
+<tr>
+<th class="td-none"></th>
+<th class="td-month">${monthName}</th>
+`;
 
-        table += `<th class="${isWeekend ? 'weekend' : ''} ${isToday ? 'today' : ''}">${dayNames[dayIndex]}</th>`;
-    }
+for (let d = 1; d <= daysInMonth; d++) {
+const dt = new Date(year, month, d);
+const dayIndex = dt.getDay();
+const isWeekend = (dayIndex === 0 || dayIndex === 6);
+const isToday = (d === todayDate.getDate() && month === todayDate.getMonth() && year === todayDate.getFullYear());
 
-    table += `
-        <th rowspan="2">Итого</th>
-        <th rowspan="2">Опции</th>
-    </tr>`;
+table += `<th class="${isWeekend ? 'weekend' : ''} ${isToday ? 'today' : ''}">${dayNames[dayIndex]}</th>`;
+}
 
-    // Вторая строка: номера и имена + числа месяца
-    table += `<tr>`;
-    table += `<th>№</th>`;
-    table += `<th>Ф.И.О.</th>`;
-    for (let d = 1; d <= daysInMonth; d++) {
-        const dt = new Date(year, month, d);
-        const isWeekend = (dt.getDay() === 0 || dt.getDay() === 6);
-        const isToday = (d === todayDate.getDate() && month === todayDate.getMonth() && year === todayDate.getFullYear());
+table += `
+<th rowspan="2">Итого</th>
+<th rowspan="2">Опции</th>
+</tr>`;
 
-        table += `<th class="${isWeekend ? 'weekend' : ''} ${isToday ? 'today' : ''} column-header-day-${d}" onclick="highlightColumn(${d})" style="cursor:pointer">${d}</th>`;
-    }
-    table += `</tr>`;
+// Вторая строка: номера и имена + числа месяца
+table += `<tr>`;
+table += `<th>№</th>`;
+table += `<th>Ф.И.О.</th>`;
+for (let d = 1; d <= daysInMonth; d++) {
+const dt = new Date(year, month, d);
+const isWeekend = (dt.getDay() === 0 || dt.getDay() === 6);
+const isToday = (d === todayDate.getDate() && month === todayDate.getMonth() && year === todayDate.getFullYear());
 
-    /*
-    // Если в месячных данных нет записей, создаём строки по каталогу сотрудников
-    if (data.length === 0 && directory.length > 0) {
-        data = directory.map(emp => ({
-            id: emp.id,
-            shifts: {}
-        }));
+table += `<th class="${isWeekend ? 'weekend' : ''} ${isToday ? 'today' : ''} column-header-day-${d}" onclick="highlightColumn(${d})" style="cursor:pointer">${d}</th>`;
+}
+table += `</tr>`;
 
-        lsSetJSON(getKey(), data);
-    }
+/*
+// Если в месячных данных нет записей, создаём строки по каталогу сотрудников
+if (data.length === 0 && directory.length > 0) {
+data = directory.map(emp => ({
+id: emp.id,
+shifts: {}
+}));
+
+lsSetJSON(getKey(), data);
+}
 */
-    // Очищаем массив от null/undefined элементов
-    data = data.filter(emp => emp !== null && emp !== undefined);
+// Очищаем массив от null/undefined элементов
+data = data.filter(emp => emp !== null && emp !== undefined);
 
-    const allEmployees = getEmployees();
+const allEmployees = getEmployees();
 
-    // Строки сотрудников
-    data.forEach((emp, i) => {
-        if (!emp) return; // дополнительная защита
-        const shifts = emp.shifts || {};
-        table += `<tr id="rowNameSecurity_${i}" class="row-Name-Security">`;
-        table += `<td onclick="highlightRow(${i})" style="cursor:pointer"><b>${i + 1}</b></td>`;
-        
+// Строки сотрудников
+data.forEach((emp, i) => {
+if (!emp) return; // дополнительная защита
+const shifts = emp.shifts || {};
+table += `<tr id="rowNameSecurity_${i}" class="row-Name-Security">`;
+table += `<td onclick="highlightRow(${i})" style="cursor:pointer"><b>${i + 1}</b></td>`;
 
-        table += `<td>
+
+table += `<td>
 <select class="names" title="ID: ${emp.id}" onchange="changeEmployeeInRow(${i}, this.value)">
-    <option value="">-- выбрать --</option>
-    ${allEmployees.map(e => `
-        <option value="${e.id}" ${e.id === emp.id ? 'selected' : ''}>
-            ${e.name}
-        </option>
-    `).join("")}
+<option value="">-- выбрать --</option>
+${allEmployees.map(e => `
+<option value="${e.id}" ${e.id === emp.id ? 'selected' : ''}>
+${e.name}
+</option>
+`).join("")}
 </select>
 </td>`;
 
-        let total = 0;
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dt = new Date(year, month, d);
-            const isWeekend = (dt.getDay() === 0 || dt.getDay() === 6);
-            const isToday = (d === todayDate.getDate() && month === todayDate.getMonth() && year === todayDate.getFullYear());
+let total = 0;
+for (let d = 1; d <= daysInMonth; d++) {
+const dt = new Date(year, month, d);
+const isWeekend = (dt.getDay() === 0 || dt.getDay() === 6);
+const isToday = (d === todayDate.getDate() && month === todayDate.getMonth() && year === todayDate.getFullYear());
 
-            const val = shifts[d] ?? "";
-            if (val) total++;
+const val = shifts[d] ?? "";
+if (val) total++;
 
-            table += `
+table += `
 <td class="${val ? 'shift-' + val : ''}">
-    <select onchange="updateShift(${emp.id},${d},this.value)">
-        ${SHIFT_TYPES.map(s => `<option ${s == val ? 'selected' : ''}>${s}</option>`).join("")}
-    </select>
+<select onchange="updateShift(${emp.id},${d},this.value)">
+${SHIFT_TYPES.map(s => `<option ${s == val ? 'selected' : ''}>${s}</option>`).join("")}
+</select>
 </td>`;
-        }
+}
 
-        table += `<td>${total}</td>`;
-        table += `
+table += `<td>${total}</td>`;
+table += `
 <td>
-    <button class="btn-option-edit" onclick="duplicateEmployee(${i})">
-    <i class="fa-solid fa-copy"></i>
-    </button>
-    <button class="btn-option-delete" onclick="deleteEmployee(${i})">
-    <i class="fa-solid fa-trash-can"></i>
-    </button>
+<button class="btn-option-edit" onclick="duplicateEmployee(${i})">
+<i class="fa-solid fa-copy"></i>
+</button>
+<button class="btn-option-delete" onclick="deleteEmployee(${i})">
+<i class="fa-solid fa-trash-can"></i>
+</button>
 </td>`;
 
-        table += `</tr>`;
-    });
+table += `</tr>`;
+});
 
-    const container = document.getElementById("scheduleTable");
-    if (container) container.innerHTML = table;
+const container = document.getElementById("scheduleTable");
+if (container) container.innerHTML = table;
 
-    renderEmployeesPanel();
-    checkColumnRepeats();
-    setTimeout(scrollToToday, 100);
+renderEmployeesPanel();
+checkColumnRepeats();
+setTimeout(scrollToToday, 100);
 }
 
 	/* ======== ПЛАВНАЯ ПРОКРУТКА К СЕГОДНЯШНЕМУ ДНЮ ======== */
 
-function scrollToToday() {
-    const wrapper = document.querySelector(".table-wrapper");
-    const todayCell = document.querySelector("th.today");
+async function scrollToToday() {
+  const wrapper = document.querySelector(".table-wrapper");
+  const todayCell = document.querySelector("th.today");
 
-    if (!wrapper || !todayCell) return;
+  if (!wrapper) {
+    console.warn("Элемент .table-wrapper не найден");
+    return;
+  }
+  if (!todayCell) {
+    console.warn("Сегодняшняя ячейка не найдена");
+    return;
+  }
 
     // ширина фиксированных колонок: № + ФИО
     const fixedCols = document.querySelectorAll(
@@ -220,41 +227,27 @@ function checkColumnRepeats() {
 
 // Эта функция рендерит панель со списком сотрудников и кнопками редактирования/удаления
 function renderEmployeesPanel() {
+  const employees = getEmployees();
+  const container = document.getElementById("employeesList");
 
-    const container = document.getElementById("employeesList");
-    const employees = getEmployees();
+  if (!container) return;
 
-    container.innerHTML = "";
+  // Проверка: если employees не массив, используем пустой массив
+  const validEmployees = Array.isArray(employees) ? employees : [];
 
-    if (employees.length === 0) {
-        container.innerHTML = "<p>Нет сотрудников</p>";
-        return;
-    }
+  container.innerHTML = "";
 
-    employees.forEach(emp => {
-
-        const row = document.createElement("div");
-        row.style.display = "flex";
-        row.style.justifyContent = "space-between";
-        row.style.alignItems = "center";
-        row.style.marginBottom = "6px";
-        row.style.padding = "6px";
-        row.style.border = "1px solid #eee";
-        row.style.borderRadius = "6px";
-
-        row.innerHTML = `
-            <div>
-                <strong>${emp.name}</strong>
-                <span style="color:gray; font-size:12px;">ID: ${emp.id}</span>
-            </div>
-            <div>
-                <button onclick="editEmployeeNameId(${emp.id})">✏</button>
-            </div>
-        `;
-
-        container.appendChild(row);
-    });
+  validEmployees.forEach(emp => {
+    const div = document.createElement("div");
+    div.className = "employee-item";
+    div.innerHTML = `
+      <span>${emp.name}</span>
+      <button class="btn-remove-emp" data-id="${emp.id}">Удалить</button>
+    `;
+    container.appendChild(div);
+  });
 }
+
 
 /*
 // Показ формы для добавления смены
@@ -405,3 +398,18 @@ if (screenshotBtn) {
         URL.revokeObjectURL(screenshotUrl);
     });
 }
+
+
+renderEmployeesPanel();
+scrollToToday();
+
+async function loadAndRenderTable() {
+  try {
+    const data = await someAsyncFunction();
+    renderTable(data);
+  } catch (error) {
+    console.error("Ошибка загрузки данных:", error);
+  }
+}
+
+loadAndRenderTable(); // Вызов асинхронной функции

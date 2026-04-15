@@ -60,7 +60,7 @@ function addEmployeeToTable() {
 
     graphChanged = true;
 
-    renderTable();
+  
 }
 
 // Эта функция удаляет сотрудника из графика по индексу строки, который соответствует позиции в массиве данных графика
@@ -86,7 +86,7 @@ function deleteEmployee(employeeIndex) {
 
     lsSetJSON(key, data);
     graphChanged = true;
-    renderTable();
+  
 }
 
 // Эта функция дублирует строку сотрудника в графике, вставляя пустую строку ниже текущей
@@ -106,7 +106,7 @@ function duplicateEmployee(i) {
     data.splice(i + 1, 0, emptyRow);
 
     lsSetJSON(getKey(), data);
-    renderTable();
+    
 }
 
 // Эта функция вызывается при клике на кнопку "Очистить смены"
@@ -117,7 +117,7 @@ function clearShifts() {
     data.forEach(e => e.shifts = {});
     lsSetJSON(getKey(), data);
     graphChanged = true;
-    renderTable();
+    
 }
 
 // Эта функция вызывается при клике на кнопку применения шаблона для одного сотрудника
@@ -153,7 +153,7 @@ function applyTemplateForOne(type) {
     applyPatternToEmployee(data, emp, type, startDay);
 
     lsSetJSON(getKey(), data);
-    renderTable();
+    
 }
 
 
@@ -178,7 +178,7 @@ function changeEmployeeInRow(rowIndex, newEmployeeId) {
     if (!newEmployeeId) {
         data[rowIndex].id = null;
         lsSetJSON(getKey(), data);
-        renderTable();
+        
         return;
     }
 
@@ -190,7 +190,7 @@ function changeEmployeeInRow(rowIndex, newEmployeeId) {
   text: "Этот сотрудник уже есть в графике",
   confirmButtonText: "OK"
 });
-        renderTable();
+        
         return;
     }
 
@@ -198,7 +198,7 @@ function changeEmployeeInRow(rowIndex, newEmployeeId) {
     data[rowIndex].id = newEmployeeId;
 
     lsSetJSON(getKey(), data);
-    renderTable();
+    
 }
 
 /* ——— КНОПКА СЕГОДНЯ ——— */
@@ -207,7 +207,7 @@ todayBtn.addEventListener("click", goToday);
 function goToday() {
     currentDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
     updatePicker();
-    renderTable();
+    
 }
 
 /* ——— МЕСЯЦЫ ——— */
@@ -219,13 +219,13 @@ nextMonthBtn.addEventListener("click", nextMonth);
 function prevMonth() {
     currentDate.setMonth(currentDate.getMonth() - 1);
     updatePicker();
-    renderTable();
+    
 }
 
 function nextMonth() {
     currentDate.setMonth(currentDate.getMonth() + 1);
     updatePicker();
-    renderTable();
+    
 }
 
 function updatePicker() {
@@ -238,7 +238,7 @@ monthPicker.addEventListener("change", loadMonthFromPicker);
 function loadMonthFromPicker() {
     let v = document.getElementById("monthPicker").value.split("-");
     currentDate = new Date(v[0], v[1]-1, 1);
-    renderTable();
+    
 }
 
 //Удаление сотрудника по id
@@ -250,7 +250,7 @@ function deleteEmployeeForID(employeeId) {
     employees = employees.filter(e => e.id !== employeeId);
     saveEmployees(employees);
     renderEmployeesPanel();
-    renderTable();
+    
 }
 
 // Эта функция вызывается при клике на кнопку редактирования сотрудника и позволяет изменить его имя
@@ -267,7 +267,7 @@ function editEmployeeNameId(employeeId) {
         emp.name = newName.trim();
         saveEmployees(employees);
         renderEmployeesPanel();
-        renderTable();
+        
     }
 }
 
@@ -282,7 +282,7 @@ function removeEmployee() {
     const list = getEmployees();
     list.splice(index, 1);
     saveEmployees(list);
-    updateEmployeeSelect();
+
 }
 
 
@@ -324,8 +324,7 @@ function importData(event) {
   confirmButtonText: "OK"
 });
 
-                updateEmployeeSelect();
-                renderTable();
+                
             }
 
         } catch (error) {

@@ -3,19 +3,16 @@
 /* APP */
 
 let graphChanged = false;
-
 let todayDate = new Date();
 
-let currentDate = new Date();
-currentDate.setDate(1);
+window.currentDate = new Date();
+window.currentDate.setDate(1);
+
 
 document.getElementById("monthPicker").value =
-    currentDate.getFullYear() +
-    "-" +
-    String(currentDate.getMonth()+1).padStart(2,"0");
+    currentDate.getFullYear() + "-" + String(currentDate.getMonth()+1).padStart(2,"0");
 
-updateEmployeeSelect();
-renderTable();
+
 
 // Вызываем инициализацию при загрузке страницы
 window.addEventListener("load", initBatchForm);
@@ -99,46 +96,51 @@ function printSchedule() {
 
 // Инициализация выпадающих списков при загрузке
 function initBatchForm() {
-    const empSelect = document.getElementById("batchEmpSelect");
-    const shiftSelect = document.getElementById("batchShiftSelect");
-    const dateSelect = document.getElementById("batchDatesSelect");
+  const empSelect = document.getElementById("batchEmpSelect");
+  const shiftSelect = document.getElementById("batchShiftSelect");
+  const dateSelect = document.getElementById("batchDatesSelect");
 
-    empSelect.innerHTML = "";
+  if (!empSelect || !shiftSelect || !dateSelect) return;
 
-    // сотрудники
-    const list = getEmployees();
+  empSelect.innerHTML = "";
 
-    list.forEach((emp, index) => {
-        const option = document.createElement("option");
-        option.value = index;
-        option.textContent = `${emp.name} (ID: ${emp.id})`;
-        empSelect.appendChild(option);
-    });
+  // Получаем список сотрудников
+  const list = getEmployees();
 
-    // смены
-    SHIFT_TYPES.forEach(shift => {
-        if (!shift) return;
+  // Проверка: если list не массив, используем пустой массив
+  const employees = Array.isArray(list) ? list : [];
 
-        const option = document.createElement("option");
-        option.value = shift;
-        option.textContent = shift;
-        shiftSelect.appendChild(option);
-    });
+  employees.forEach((emp, index) => {
+    const option = document.createElement("option");
+    option.value = emp.id; // Используем ID сотрудника
+    option.textContent = `${emp.name} (ID: ${emp.id})`;
+    empSelect.appendChild(option);
+  });
 
-    // даты
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+  // Заполняем смены
+  SHIFT_TYPES.forEach(shift => {
+    if (!shift) return;
 
-    dateSelect.innerHTML = "";
+    const option = document.createElement("option");
+    option.value = shift;
+    option.textContent = shift;
+    shiftSelect.appendChild(option);
+  });
 
-    for (let d = 1; d <= daysInMonth; d++) {
-        const option = document.createElement("option");
-        option.value = d;
-        option.textContent = d;
-        dateSelect.appendChild(option);
-    }
+  // Заполняем даты
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  dateSelect.innerHTML = "";
+  for (let d = 1; d <= daysInMonth; d++) {
+    const option = document.createElement("option");
+    option.value = d;
+    option.textContent = d;
+    dateSelect.appendChild(option);
+  }
 }
+
 
 //Добавление смен по датам и сотрудникам
 document.addEventListener('DOMContentLoaded', function() {
@@ -256,8 +258,7 @@ function importData(event) {
             });
 
             // Обновляем интерфейс
-            updateEmployeeSelect();
-            renderTable();
+            
             loadGuards();
             renderCalendar();
                 }
@@ -349,7 +350,7 @@ btnShowEmployeesPanel.addEventListener("click", showEmployeesPanel);
 function showEmployeesPanel() {
     employeesPanel.style.display = "block";
     panelSeting.classList.add("is-hidden");
-    updateEmployeeSelect();
+
     renderEmployeesPanel();
 }
 
@@ -359,3 +360,26 @@ btnCloseEmployeesPanel.addEventListener("click", closeEmployeesPanel);
 function closeEmployeesPanel() {
     panel.style.display = "none";
 }
+
+async function initializeApp() {
+  try {
+    await updateEmployeeSelect();
+    if (typeof renderTable === 'function') {
+      await renderTable();
+    } else {
+      console.warn('Функция renderTable не найдена, пропускаем отрисовку таблицы');
+    }
+    initBatchForm();
+    console.log('Приложение успешно инициализировано');
+  } catch (error) {
+    console.error('Ошибка инициализации приложения:', error);
+    showNotification('error', 'Не удалось загрузить приложение. Проверьте консоль.');
+  }
+}
+
+
+// Вызываем при загрузке страницы
+window.addEventListener("load", async () => {
+  await initializeApp();
+  initBatchForm();
+});
