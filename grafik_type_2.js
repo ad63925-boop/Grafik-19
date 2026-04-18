@@ -18,52 +18,54 @@ toggleViewBtn.onclick = () => {
   calendarView.hidden = !calendarView.hidden;
 };
 
-/* ===== КЛЮЧ ХРАНЕНИЯ ===== */
-function getScheduleKeyForDate(date) {
-  return "schedule_" + date.getFullYear() + "_" + date.getMonth();
-}
-
 /* ===== ЗАГРУЗКА ДАННЫХ ===== */
-function loadScheduleDataForDate(date) {
-
+async function loadScheduleDataForDate(date) {
   const key = getScheduleKeyForDate(date);
-  const data = JSON.parse(localStorage.getItem(key)) || [];
 
-  const out = {};
+  try {
+    // Загружаем данные из Firebase
+    const snapshot = await dbGet(dbRef(db, `schedules/${key}`));
+    const data = snapshot.exists() ? snapshot.val() : [];
 
-  data.forEach(emp => {
 
-    const id = emp.id;
-    if (!id) return;
+    const out = {};
 
-    out[id] = {
-      name: emp.name || "",
-      shifts: {}
-    };
 
-    const shifts = emp.shifts || {};
+    data.forEach(emp => {
+      const id = emp.id;
+      if (!id) return;
 
-    Object.keys(shifts).forEach(dayKey => {
+      out[id] = {
+        name: emp.name || "",
+        shifts: {}
+      };
 
-      const val = shifts[dayKey];
-      if (!val) return;
+      const shifts = emp.shifts || {};
 
-      const day = parseInt(dayKey, 10);
-      if (isNaN(day)) return;
+      Object.keys(shifts).forEach(dayKey => {
+        const val = shifts[dayKey];
+        if (!val) return;
 
-      const year = date.getFullYear();
-      const month = date.getMonth();
+        const day = parseInt(dayKey, 10);
+        if (isNaN(day)) return;
 
-      const dateStr =
-        `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
-      out[id].shifts[dateStr] = val;
+        const year = date.getFullYear();
+        const month = date.getMonth();
 
+        const dateStr =
+          `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+        out[id].shifts[dateStr] = val;
+      });
     });
 
-  });
-
-  return out;
+    return out;
+  } catch (error) {
+    console.error("Ошибка при загрузке данных из Firebase:", error);
+    // В случае ошибки возвращаем пустую структуру
+    return {};
+  }
 }
 
 /* ===== ЗАПОЛНЕНИЕ SELECT ===== */

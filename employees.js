@@ -32,11 +32,11 @@ async function updateEmployeeSelect() {
 
 
 
-// Получение списка сотрудников из localStorage
+// Получение списка сотрудников (асинхронная функция для работы с Firebase)
 var BtnAddEmployeeToList = document.getElementById("BtnAddEmployeeToList");
 BtnAddEmployeeToList.addEventListener("click", addEmployeeToList);
 
-function addEmployeeToList() {
+async function addEmployeeToList() {
   const input = document.getElementById("newEmployeeName");
   if (!input) return;
 
@@ -47,22 +47,60 @@ function addEmployeeToList() {
 
   let list;
   try {
-    list = getEmployees();
+    // Загружаем список сотрудников из Firebase
+    list = await getEmployees();
   } catch (error) {
-    console.error("Ошибка загрузки сотрудников:", error);
+    console.error("Ошибка загрузки сотрудников из Firebase:", error);
     return showNotification('error', 'Ошибка загрузки списка сотрудников');
   }
 
   if (!Array.isArray(list)) list = [];
 
+  // Проверяем, есть ли сотрудник с таким именем в списке
   if (list.some(e => e.name === name)) {
     return showNotification('warning', 'Сотрудник уже есть в списке');
   }
 
-  addEmployee(name);
+  // Добавляем нового сотрудника в Firebase
+  await addEmployeeToFirebase(name);
 
-  renderEmployeesPanel();
+  // Обновляем панель сотрудников
+  await renderEmployeesPanel();
+
+  // Очищаем поле ввода
   input.value = "";
+}
+
+// Новая функция для добавления сотрудника в Firebase
+async function addEmployeeToFirebase(name) {
+  try {
+    const employeesRef = dbRef(db, 'employees');
+
+    // Получаем текущий список
+    const snapshot = await dbGet(employeesRef);
+    let currentList = snapshot.exists() ? snapshot.val() : [];
+
+    if (!Array.isArray(currentList)) currentList = [];
+
+    // Генерируем ID для нового сотрудника
+    const newId = currentList.length > 0
+      ? Math.max(...currentList.map(e => e.id)) + 1
+      : 1;
+
+    // Создаём нового сотрудника
+    const newEmployee = { id: newId, name: name };
+
+    // Добавляем в список
+    currentList.push(newEmployee);
+
+    // Сохраняем обновлённый список в Firebase
+    await dbSet(employeesRef, currentList);
+
+    console.log("Сотрудник добавлен в Firebase:", name);
+  } catch (error) {
+    console.error("Ошибка при добавлении сотрудника в Firebase:", error);
+    throw error;
+  }
 }
 
 
@@ -135,4 +173,3 @@ function showNotification(type, message) {
   }
 }
 
-console.log(localStorage.getItem("employees"));

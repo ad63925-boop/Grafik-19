@@ -1,4 +1,4 @@
-//Только работа с localStorage и данными
+
 /* DATABASE */
 
 let currentDate = new Date();
@@ -9,63 +9,72 @@ function setCurrentDate(date) {
   syncMonth(); // Перезапускаем синхронизацию с новым ключом
 }
 
-// --- Универсальные функции для работы с localStorage ---
-function lsGet(key) {
-    return localStorage.getItem(key);
-}
-
-function lsSet(key, value) {
-    localStorage.setItem(key, value);
-}
-
-function lsRemove(key) {
-    localStorage.removeItem(key);
-}
-
-function lsKeys(prefix) {
-    const out = [];
-    for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (!prefix || k.startsWith(prefix)) out.push(k);
-    }
-    return out;
-}
-
 // сотрудники
 async function getEmployees() {
   try {
-    // Сначала пробуем localStorage
-    const stored = localStorage.getItem("employees");
-    if (stored) {
-      const localEmployees = JSON.parse(stored);
-      if (Array.isArray(localEmployees)) {
-        console.log("Сотрудники загружены из localStorage");
-        return localEmployees;
-      }
-    }
+    // Загружаем данные сотрудников из Firebase
+    const snapshot = await dbGet(dbRef(db, 'employees'));
 
-    // Если localStorage пуст/некорректен, берём из Firebase (только если database определён)
-    if (typeof database !== 'undefined') {
-      const employeesRef = firebase.database().ref('employees');
-      const snapshot = await employeesRef.once('value');
+    if (snapshot.exists()) {
       const firebaseEmployees = snapshot.val();
 
-      if (!firebaseEmployees) {
-        console.warn("В Firebase нет данных сотрудников, возвращаем пустой массив");
+      // Проверяем, что данные — массив
+      if (Array.isArray(firebaseEmployees)) {
+        console.log("Сотрудники загружены из Firebase");
+        return firebaseEmployees;
+      } else {
+        // Если данные есть, но не в формате массива, возвращаем пустой массив
+        console.warn("Данные сотрудников в Firebase не являются массивом");
         return [];
       }
-
-      // Сохраняем в localStorage для следующего раза
-      localStorage.setItem("employees", JSON.stringify(firebaseEmployees));
-      console.log("Сотрудники загружены из Firebase и сохранены в localStorage");
-      return firebaseEmployees;
     } else {
-      console.warn("Firebase database не инициализирован, используем пустой массив");
+      // Если данных нет в Firebase, возвращаем пустой массив
+      console.log("В Firebase нет данных о сотрудниках, возвращаем пустой массив");
       return [];
     }
   } catch (error) {
-    console.error("Ошибка загрузки сотрудников (Firebase/localStorage):", error);
-    return []; // Всегда возвращаем массив
+    console.error("Ошибка при загрузке сотрудников из Firebase:", error);
+
+    // В случае ошибки Firebase возвращаем пустой массив,
+    // чтобы интерфейс мог корректно отрисоваться
+    return [];
+  }
+}
+
+
+async function getEmployees() {
+  try {
+    // Проверяем, инициализирован ли Firebase
+    if (typeof db === 'undefined') {
+      console.warn("Firebase database не инициализирован, возвращаем пустой массив");
+      return [];
+    }
+
+    // Загружаем данные сотрудников из Firebase
+    const snapshot = await dbGet(dbRef(db, 'employees'));
+
+    if (!snapshot.exists()) {
+      console.log("В Firebase нет данных о сотрудниках, возвращаем пустой массив");
+      return [];
+    }
+
+    const firebaseEmployees = snapshot.val();
+
+    // Проверяем, что данные — массив
+    if (Array.isArray(firebaseEmployees)) {
+      console.log("Сотрудники загружены из Firebase");
+      return firebaseEmployees;
+    } else {
+      // Если данные есть, но не в формате массива, возвращаем пустой массив
+      console.warn("Данные сотрудников в Firebase не являются массивом, возвращаем пустой массив");
+      return [];
+    }
+  } catch (error) {
+    console.error("Ошибка при загрузке сотрудников из Firebase:", error);
+
+    // В случае ошибки Firebase возвращаем пустой массив,
+    // чтобы интерфейс мог корректно отрисоваться
+    return [];
   }
 }
 
@@ -131,7 +140,6 @@ async function getMonthData() {
     console.error("Критическая ошибка при загрузке данных из Firebase:", error);
 
     // В случае ошибки Firebase возвращаем пустой массив
-    // (вместо fallback на LocalStorage)
     return [];
   }
 }
