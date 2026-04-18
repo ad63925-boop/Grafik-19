@@ -12,46 +12,16 @@ function setCurrentDate(date) {
 // сотрудники
 async function getEmployees() {
   try {
-    // Загружаем данные сотрудников из Firebase
-    const snapshot = await dbGet(dbRef(db, 'employees'));
-
-    if (snapshot.exists()) {
-      const firebaseEmployees = snapshot.val();
-
-      // Проверяем, что данные — массив
-      if (Array.isArray(firebaseEmployees)) {
-        console.log("Сотрудники загружены из Firebase");
-        return firebaseEmployees;
-      } else {
-        // Если данные есть, но не в формате массива, возвращаем пустой массив
-        console.warn("Данные сотрудников в Firebase не являются массивом");
-        return [];
-      }
-    } else {
-      // Если данных нет в Firebase, возвращаем пустой массив
-      console.log("В Firebase нет данных о сотрудниках, возвращаем пустой массив");
-      return [];
-    }
-  } catch (error) {
-    console.error("Ошибка при загрузке сотрудников из Firebase:", error);
-
-    // В случае ошибки Firebase возвращаем пустой массив,
-    // чтобы интерфейс мог корректно отрисоваться
-    return [];
-  }
-}
-
-
-async function getEmployees() {
-  try {
-    // Проверяем, инициализирован ли Firebase
     if (typeof db === 'undefined') {
       console.warn("Firebase database не инициализирован, возвращаем пустой массив");
       return [];
     }
 
-    // Загружаем данные сотрудников из Firebase
-    const snapshot = await dbGet(dbRef(db, 'employees'));
+    // Диагностический лог: что передаём в dbRef
+    const path = 'employees';
+    console.log("Загружаем сотрудников из пути:", path);
+
+    const snapshot = await dbGet(dbRef('employees'));
 
     if (!snapshot.exists()) {
       console.log("В Firebase нет данных о сотрудниках, возвращаем пустой массив");
@@ -60,20 +30,15 @@ async function getEmployees() {
 
     const firebaseEmployees = snapshot.val();
 
-    // Проверяем, что данные — массив
     if (Array.isArray(firebaseEmployees)) {
-      console.log("Сотрудники загружены из Firebase");
+      console.log("Сотрудники загружены из Firebase, количество:", firebaseEmployees.length);
       return firebaseEmployees;
     } else {
-      // Если данные есть, но не в формате массива, возвращаем пустой массив
       console.warn("Данные сотрудников в Firebase не являются массивом, возвращаем пустой массив");
       return [];
     }
   } catch (error) {
     console.error("Ошибка при загрузке сотрудников из Firebase:", error);
-
-    // В случае ошибки Firebase возвращаем пустой массив,
-    // чтобы интерфейс мог корректно отрисоваться
     return [];
   }
 }
@@ -114,10 +79,17 @@ async function addEmployee(name, shifting) {
 
 // ключ месяца
 function getKey() {
+  // Проверяем, что currentDate — валидная дата
+  if (!(currentDate instanceof Date) || isNaN(currentDate.getTime())) {
+    console.error("❌ currentDate не является валидной датой");
+    throw new Error("Invalid currentDate");
+  }
+
   const year = currentDate.getFullYear();
   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
   return `schedule_${year}_${month}`;
 }
+
 
 
 // данные месяца
@@ -126,7 +98,7 @@ async function getMonthData() {
 
   try {
     // Загружаем данные из Firebase
-    const snapshot = await dbGet(dbRef(db, key));
+    const snapshot = await dbGet(dbRef('employees'));
 
     if (snapshot.exists()) {
       // Возвращаем данные из Firebase
@@ -148,20 +120,27 @@ async function getMonthData() {
 let currentSyncSubscription = null;
 
 function syncMonth() {
-  const key = getKey();
+  let key;
+  try {
+    key = getKey();
+  } catch (error) {
+    console.error("❌ Ошибка получения ключа месяца:", error);
+    return;
+  }
 
-  // Отписываемся от старой подписки
   if (currentSyncSubscription) {
     currentSyncSubscription();
   }
 
-  currentSyncSubscription = dbOnValue(dbRef(db, key), (snapshot) => {
+  console.log("Синхронизация с ключом:", key);
+  currentSyncSubscription = dbOnValue(dbRef(key), (snapshot) => {
     if (snapshot.exists()) {
       const data = snapshot.val();
       lsSetJSON(key, data);
     }
   });
 }
+
 
 // Функция для остановки синхронизации
 function stopSyncMonth() {
@@ -175,12 +154,9 @@ function stopSyncMonth() {
 async function saveMonthData(data) {
   const key = getKey();
 
-  // Локально
-  lsSetJSON(key, data);
-
   // В Firebase с обработкой ошибок
   try {
-    await dbSet(dbRef(db, key), data);
+    await dbSet(dbRef(key), data);
     console.log("Данные успешно сохранены в Firebase");
   } catch (error) {
     console.error("Ошибка сохранения в Firebase:", error);

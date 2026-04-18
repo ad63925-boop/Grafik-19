@@ -417,63 +417,6 @@ function removeEmployee() {
 
 }
 
-
-/* ——— ИМПОРТ ДАННЫХ ——— */
-
-// Эта функция должна быть глобальной, так как вызывается при изменении input type="file"
-function importData(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        try {
-            const importedData = JSON.parse(e.target.result);
-
-            if (confirm("Внимание! Текущие данные LocalStorage будут перезаписаны импортированными данными. Продолжить?")) {
-
-                let count = 0;
-
-                for (const key in importedData) {
-
-                    // Импорт месяцев
-                    if (key.startsWith("schedule_")) {
-                        lsSetJSON(key, importedData[key]);
-                        count++;
-                    }
-
-                    // Импорт сотрудников
-                    if (key === "employees") {
-                        lsSetJSON("employees", importedData[key]);
-                    }
-                }
-
-                Swal.fire({
-  icon: "success",
-  title: "Успешно",
-  text: `Импорт завершён.\nГрафиков: ${count}\nСотрудники обновлены.`,
-  confirmButtonText: "OK"
-});
-
-                
-            }
-
-        } catch (error) {
-            Swal.fire({
-  icon: "warning",
-  title: "Внимание",
-  text: "Ошибка при чтении файла: Неверный формат JSON.",
-  confirmButtonText: "OK"
-});
-            console.error(error);
-        }
-    };
-
-    reader.readAsText(file);
-    event.target.value = '';
-}
-
 /* ——— ЛОГИКА ШАБЛОНОВ ДЛЯ 1 СОТРУДНИКА ——— */
 
 // Эта функция применяет заданный шаблон к одному сотруднику, начиная с указанной даты

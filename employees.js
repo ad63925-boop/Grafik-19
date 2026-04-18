@@ -30,8 +30,6 @@ async function updateEmployeeSelect() {
   }
 }
 
-
-
 // Получение списка сотрудников (асинхронная функция для работы с Firebase)
 var BtnAddEmployeeToList = document.getElementById("BtnAddEmployeeToList");
 BtnAddEmployeeToList.addEventListener("click", addEmployeeToList);
@@ -74,10 +72,11 @@ async function addEmployeeToList() {
 // Новая функция для добавления сотрудника в Firebase
 async function addEmployeeToFirebase(name) {
   try {
-    const employeesRef = dbRef(db, 'employees');
+    // Правильный вызов ref(): передаём db и путь как отдельные аргументы
+    const employeesRef = dbRef('employees');
 
     // Получаем текущий список
-    const snapshot = await dbGet(employeesRef);
+    const snapshot = await dbGet(dbRef('employees'));
     let currentList = snapshot.exists() ? snapshot.val() : [];
 
     if (!Array.isArray(currentList)) currentList = [];
@@ -102,6 +101,7 @@ async function addEmployeeToFirebase(name) {
     throw error;
   }
 }
+
 
 
 var btnRemoveEmployeeFromList = document.getElementById("btnRemoveEmployeeFromList");

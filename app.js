@@ -250,3 +250,13 @@ window.addEventListener("load", async () => {
   await initializeApp();
   initBatchForm();
 });
+
+//для запуска приложения после загрузки DOM и инициализации Firebase
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.firebaseReady) {
+    console.log('Firebase готов при загрузке DOM');
+    // Ваш основной код инициализации приложения
+  } else {
+    console.error("Firebase не готов при загрузке DOM");
+  }
+});

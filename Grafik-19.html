@@ -220,18 +220,27 @@
             Auth.updateUI();
         }
     </script>
-	<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<!-- 1. Firebase SDK (compat-режим) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-  <script src="js/firebase.js"></script>
+<!-- 2. Инициализация Firebase -->
+<script src="js/firebase.js"></script>
 
-	<script src="../burgerMenu/menu.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <script src="database.js"></script>
-  <script   src="employees.js"></script>
-  <script   src="schedule.js"></script>
-  <script   src="render.js"></script>
-  <script  src="app.js"></script>
+<!-- 3. Вспомогательные библиотеки -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<!-- 4. Ваши модули (только после инициализации Firebase!) -->
+<script src="database.js"></script>
+<script src="employees.js"></script>
+<script src="schedule.js"></script>
+<script src="render.js"></script>
+<script src="app.js"></script>
+
+
+<!-- 5. Меню (в конце, после всего основного кода) -->
+<script src="../burgerMenu/menu.js" defer></script>
+
 
 </body>
 </html>
