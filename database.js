@@ -31,21 +31,6 @@ function lsKeys(prefix) {
     return out;
 }
 
-// --- Универсальные функции для работы с JSON в localStorage ---
-function lsGetJSON(key) {
-    try {
-        return JSON.parse(localStorage.getItem(key));
-    } catch (e) {
-        return null;
-    }
-}
-
-function lsSetJSON(key, obj) {
-    localStorage.setItem(key, JSON.stringify(obj));
-}
-
-//localStorage.removeItem("employees"); // очистка для тестов
-//console.log("Employees in storage:", getEmployees());
 // сотрудники
 async function getEmployees() {
   try {
@@ -128,23 +113,29 @@ function getKey() {
 
 // данные месяца
 async function getMonthData() {
-    const key = getKey();
+  const key = getKey();
 
-    // пробуем из Firebase
-    try {
-        const snapshot = await dbGet(dbRef(db, key));
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            lsSetJSON(key, data); // кеш
-            return data;
-        }
-    } catch (e) {
-        console.warn("Firebase недоступен, берём localStorage");
+  try {
+    // Загружаем данные из Firebase
+    const snapshot = await dbGet(dbRef(db, key));
+
+    if (snapshot.exists()) {
+      // Возвращаем данные из Firebase
+      return snapshot.val();
+    } else {
+      // Если данных нет в Firebase, возвращаем пустой массив
+      console.log("В Firebase нет данных для ключа:", key);
+      return [];
     }
+  } catch (error) {
+    console.error("Критическая ошибка при загрузке данных из Firebase:", error);
 
-    // fallback
-    return lsGetJSON(key) || [];
+    // В случае ошибки Firebase возвращаем пустой массив
+    // (вместо fallback на LocalStorage)
+    return [];
+  }
 }
+
 
 let currentSyncSubscription = null;
 

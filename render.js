@@ -249,121 +249,21 @@ function renderEmployeesPanel() {
 }
 
 
-/*
-// Показ формы для добавления смены
-var BtnAddBatchShift = document.getElementById("BtnAddBatchShift");
-if (BtnAddBatchShift) {
-    BtnAddBatchShift.addEventListener("click", showBatchShiftForm);
-} else {
-    console.warn('Элемент "BtnAddBatchShift" не найден');
+async function loadMonthDataFromFirebase() {
+  const key = getKey();
+  const snapshot = await dbGet(dbRef(`/schedules/${key}`));
+  return snapshot.exists() ? snapshot.val() : [];
 }
 
-// Добавление смен по датам
-var btnApplyBatchShifts = document.getElementById("btnApplyBatchShifts");
-if (btnApplyBatchShifts) {
-    btnApplyBatchShifts.addEventListener("click", applyBatchShifts);
-} else {
-    console.warn('Элемент "btnApplyBatchShifts" не найден');
-}
-
-function applyBatchShifts() {
-    const batchEmpSelect = document.getElementById("batchEmpSelect");
-    const batchShiftSelect = document.getElementById("batchShiftSelect");
-    const batchDatesSelect = document.getElementById("batchDatesSelect");
-
-    // Проверка существования элементов
-    if (!batchEmpSelect || !batchShiftSelect || !batchDatesSelect) {
-        console.error('Один из элементов формы не найден');
-        return;
-    }
-
-    const empId = Number(batchEmpSelect.value);
-    const shiftValue = batchShiftSelect.value;
-
-    const selectedDates = Array.from(
-        batchDatesSelect.selectedOptions
-    ).map(opt => Number(opt.value));
-
-    // Валидация входных данных
-    if (!empId || isNaN(empId)) {
-        Swal.fire({
-            icon: "warning",
-            title: "Внимание",
-            text: "Выберите сотрудника",
-            confirmButtonText: "OK"
-        });
-        return;
-    }
-
-    if (!shiftValue) {
-        Swal.fire({
-            icon: "warning",
-            title: "Внимание",
-            text: "Выберите смену",
-            confirmButtonText: "OK"
-        });
-        return;
-    }
-
-    if (selectedDates.length === 0) {
-        Swal.fire({
-            icon: "warning",
-            title: "Внимание",
-            text: "Выберите даты",
-            confirmButtonText: "OK"
-        });
-        return;
-    }
-
-    // Удаление дубликатов дат и фильтрация некорректных значений
-    const uniqueDates = [...new Set(selectedDates)].filter(day =>
-        !isNaN(day) && day > 0 && day <= new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
-    );
-
-    if (uniqueDates.length === 0) {
-        Swal.fire({
-            icon: "warning",
-            title: "Внимание",
-            text: "Выбранные даты некорректны",
-            confirmButtonText: "OK"
-        });
-        return;
-    }
-
-    const key = getKey();
-    let data = lsGetJSON(key) || [];
-
-    const employee = data.find(e => e.id === empId);
-
-    if (!employee) {
-        Swal.fire({
-            icon: "warning",
-            title: "Внимание",
-            text: "Этот сотрудник не добавлен в график этого месяца",
-            confirmButtonText: "OK"
-        });
-        return;
-    }
-
-    if (!employee.shifts) employee.shifts = {};
-
-    // Обновление смен для выбранных дат
-    uniqueDates.forEach(day => {
-        employee.shifts[day] = shiftValue;
-    });
-
-    lsSetJSON(key, data);
-
+async function loadAndRenderTable() {
+  try {
+    const data = await loadMonthDataFromFirebase();
+    renderTable(data);
+  } catch (error) {
+    console.error("Ошибка загрузки данных из Firebase:", error);
     renderTable();
-
-    Swal.fire({
-        icon: "success",
-        title: "Успешно",
-        text: `Смены назначены (${uniqueDates.length})`,
-        confirmButtonText: "OK"
-    });
+  }
 }
-*/
 
 
 //Скрытие формы
