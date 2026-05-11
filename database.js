@@ -17,51 +17,51 @@ async function getEmployees() {
       return [];
     }
 
-    // Диагностический лог: что передаём в dbRef
-    const path = 'employees';
-    console.log("Загружаем сотрудников из пути:", path);
-
     const snapshot = await dbGet(dbRef('employees'));
 
     if (!snapshot.exists()) {
-      console.log("В Firebase нет данных о сотрудниках, возвращаем пустой массив");
+      console.log("❌ В Firebase нет данных о сотрудниках (узел 'employees' отсутствует или пуст)");
       return [];
     }
 
     const firebaseEmployees = snapshot.val();
+    console.log("Raw данные из Firebase:", firebaseEmployees);
+
+    // Преобразуем в массив
+    let employeesArray = [];
 
     if (Array.isArray(firebaseEmployees)) {
-      console.log("Сотрудники загружены из Firebase, количество:", firebaseEmployees.length);
-      return firebaseEmployees;
+      employeesArray = firebaseEmployees;
+    } else if (firebaseEmployees && typeof firebaseEmployees === 'object') {
+      employeesArray = Object.values(firebaseEmployees);
     } else {
-      console.warn("Данные сотрудников в Firebase не являются массивом, возвращаем пустой массив");
-      return [];
+      employeesArray = [];
     }
+
+    console.log("✅ Сотрудники загружены из Firebase, количество:", employeesArray.length);
+    return employeesArray;
   } catch (error) {
-    console.error("Ошибка при загрузке сотрудников из Firebase:", error);
+    console.error("❌ Ошибка при загрузке сотрудников из Firebase:", error);
     return [];
   }
 }
 
 
-
-
 // сохранение сотрудников
-function saveEmployees(data) {
-  // Базовая валидация
-  if (!Array.isArray(data)) {
-    console.error("Данные сотрудников должны быть массивом");
-    return;
+async function saveEmployees(employeesList) {
+  try {
+    if (typeof db === 'undefined') {
+      throw new Error("Firebase db not initialized");
+    }
+
+    const employeesRef = dbRef('employees');
+    await dbSet(employeesRef, employeesList);
+    console.log("Сотрудники успешно сохранены в Firebase");
+  } catch (error) {
+    console.error("Ошибка сохранения сотрудников в Firebase:", error);
+    throw error;
   }
-
-  lsSetJSON("employees", data);
-  dbSet(dbRef(db, "employees"), data)
-    .catch(error => {
-      console.error("Ошибка сохранения в Firebase:", error);
-      showError("Не удалось сохранить данные в облаке. Изменения сохранены локально.");
-    });
 }
-
 
 // добавление сотрудника исправить на добавление с id и сменой
 async function addEmployee(name, shifting) {
@@ -136,7 +136,6 @@ function syncMonth() {
   currentSyncSubscription = dbOnValue(dbRef(key), (snapshot) => {
     if (snapshot.exists()) {
       const data = snapshot.val();
-      lsSetJSON(key, data);
     }
   });
 }

@@ -105,11 +105,12 @@ async function addEmployeeToFirebase(name) {
 
 
 var btnRemoveEmployeeFromList = document.getElementById("btnRemoveEmployeeFromList");
+
 if (btnRemoveEmployeeFromList) {
   btnRemoveEmployeeFromList.addEventListener("click", removeEmployeeFromList);
 }
 
-function removeEmployeeFromList() {
+async function removeEmployeeFromList() {
   const select = document.getElementById("employeeSelect");
   if (!select) {
     showNotification('error', 'Элемент выбора сотрудников не найден');
@@ -124,7 +125,8 @@ function removeEmployeeFromList() {
 
   let list;
   try {
-    list = getEmployees();
+    // Исправлено: используем await для асинхронного вызова
+    list = await getEmployees();
   } catch (error) {
     console.error("Ошибка загрузки сотрудников:", error);
     return showNotification('error', 'Ошибка загрузки списка сотрудников');
@@ -148,7 +150,8 @@ function removeEmployeeFromList() {
 
   try {
     list.splice(index, 1);
-    saveEmployees(list);
+    // Сохраняем обновлённый список в Firebase
+    await saveEmployees(list);
 
     renderEmployeesPanel();
     showNotification('success', `Сотрудник "${employeeName}" удалён из списка`);
@@ -156,7 +159,13 @@ function removeEmployeeFromList() {
     console.error('Ошибка при удалении сотрудника:', error);
     showNotification('error', 'Ошибка при удалении сотрудника. Проверьте консоль.');
   }
+
+    console.log("Загруженный список сотрудников:", list);
+    console.log("Выбранный ID:", selectedId);
+    console.log("Индекс сотрудника:", index);
+
 }
+
 
 
 function showNotification(type, message) {

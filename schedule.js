@@ -10,9 +10,11 @@
 
 const SHIFT_TYPES = ["", "Д", "Н", "У", "З", "О", "Т", "П", "К", "Р", "Уо", "Уз", "Ун"];
 
-function updateShift(empId, day, val) {
-
-    let data = getMonthData();
+async function updateShift(empId, day, val) {
+  try {
+    const key = getKey();
+    const snapshot = await dbGet(dbRef(`/schedules/${key}`));
+    let data = snapshot.exists() ? snapshot.val() : [];
 
     let employee = data.find(e => e.id === empId);
     if (!employee) return;
@@ -21,47 +23,82 @@ function updateShift(empId, day, val) {
 
     employee.shifts[day] = val;
 
-    saveMonthData(data);
+    await dbSet(dbRef(`/schedules/${key}`), data);
 
     graphChanged = true;
-
     checkColumnRepeats();
+  } catch (error) {
+    console.error("Ошибка при обновлении смены:", error);
+  }
 }
 
 var btnAddEmployeeToTable = document.getElementById("btnAddEmployeeToTable");
 btnAddEmployeeToTable.addEventListener("click", addEmployeeToTable);
-function addEmployeeToTable() {
 
-    const select = document.getElementById("employeeSelect");
+async function addEmployeeToTable() {
+  try {
+    // Загружаем список сотрудников
+    let empList = await getEmployees();
 
-    const empList = getEmployees();
-    const selectedId = select.value;
-    const selectedEmp = empList.find(e => e.id == selectedId);
-
-    if (!selectedEmp) return;
-
-    let data = getMonthData();
-
-    if (data.some(e => e.id === selectedEmp.id)) {
-        Swal.fire({
-  icon: "warning",
-  title: "Внимание",
-  text: "Сотрудник уже в графике"
-});
-        return;
+    // Гарантируем, что empList — массив
+    if (!Array.isArray(empList)) {
+      console.error("❌ empList не является массивом:", empList);
+      empList = [];
     }
 
+    // Получаем ID сотрудника из выпадающего списка
+    const employeeSelect = document.getElementById('employeeSelect');
+    const selectedId = employeeSelect.value;
+
+    if (!selectedId) {
+      showNotification('warning', 'Выберите сотрудника из списка');
+      return;
+    }
+
+    // Теперь безопасно используем find()
+    const employee = empList.find(emp =>
+      emp.id.toString() === selectedId.toString()
+    );
+
+    if (!employee) {
+      console.warn("Сотрудник с ID", selectedId, "не найден в списке");
+      showNotification('error', 'Сотрудник не найден в базе данных');
+      return;
+    }
+
+    // ПОЛУЧАЕМ ТЕКУЩИЕ ДАННЫЕ ГРАФИКА
+    const key = getKey();
+    const snapshot = await dbGet(dbRef(`/schedules/${key}`));
+    let data = snapshot.exists() ? snapshot.val() : [];
+
+    // Добавляем сотрудника в данные графика
     data.push({
-        id: selectedEmp.id,
-        shifts: {}
+      id: employee.id,
+      shifts: {}
     });
 
-    saveMonthData(data);
+    // Сохраняем обновлённые данные в Firebase
+    await dbSet(dbRef(`/schedules/${key}`), data);
 
-    graphChanged = true;
+    // ЗАГРУЖАЕМ АКТУАЛЬНЫЕ ДАННЫЕ ПОСЛЕ СОХРАНЕНИЯ И ПЕРЕДАЁМ В renderTable
+    const updatedData = await loadMonthDataFromFirebase();
+    renderTable(updatedData);
 
-  
+    // Показываем уведомление об успехе
+    Swal.fire({
+      icon: "success",
+      title: "Успешно!",
+      text: `Сотрудник "${employee.name}" добавлен в график`,
+      timer: 2000,
+      showConfirmButton: false
+    });
+  } catch (error) {
+    console.error("Ошибка в addEmployeeToTable:", error);
+    showNotification('error', 'Ошибка при добавлении сотрудника в график');
+  }
 }
+
+
 
 // Эта функция удаляет сотрудника из графика по индексу строки, который соответствует позиции в массиве данных графика
 async function deleteEmployee(employeeIndex) {
@@ -245,12 +282,16 @@ async function applyTemplateForOne(type) {
       });
     }
 
-    // Здесь должна быть логика применения шаблона (см. пояснения ниже)
-    // Например, вызов applyPatternToEmployee() для каждого сотрудника
+    // Применяем шаблон к каждому сотруднику
+    const startDay = 1; // Начинаем с первого дня месяца
+    data.forEach(employee => {
+      if (employee.id) { // Проверяем, что сотрудник выбран
+        applyPatternToEmployee(data, employee.id, type, startDay);
+      }
+    });
 
     // Сохраняем обновлённые данные в Firebase
     await dbSet(dbRef(`/schedules/${key}`), data);
-
     // Обновляем интерфейс
     renderTable();
 
@@ -275,6 +316,7 @@ async function applyTemplateForOne(type) {
     });
   }
 }
+
 
 
 // Эта функция вызывается при изменении сотрудника в строке и сохраняет новый ID сотрудника, не трогая смены
@@ -374,48 +416,63 @@ function loadMonthFromPicker() {
 }
 
 //Удаление сотрудника по id
-function deleteEmployeeForID(employeeId) {
+async function deleteEmployeeForID(employeeId) {
+  if (!confirm('Удалить сотрудника?')) return;
 
-    if (!confirm("Удалить сотрудника?")) return;
-
-    let employees = getEmployees();
+  try {
+    let employees = await getEmployees();
     employees = employees.filter(e => e.id !== employeeId);
-    saveEmployees(employees);
-    renderEmployeesPanel();
-    
+    await saveEmployees(employees);
+    // Обновляем панель сотрудников
+    await renderEmployeesPanel();
+  } catch (error) {
+    console.error('Ошибка при удалении сотрудника:', error);
+    showNotification('error', 'Не удалось удалить сотрудника');
+  }
 }
+
+
 
 // Эта функция вызывается при клике на кнопку редактирования сотрудника и позволяет изменить его имя
-function editEmployeeNameId(employeeId) {
+async function editEmployeeNameId(employeeId) {
+  let employees = await getEmployees();
+  const emp = employees.find(e => e.id === employeeId);
 
-    let employees = getEmployees();
-    const emp = employees.find(e => e.id === employeeId);
+  if (!emp) return;
 
-    if (!emp) return;
+  const newName = prompt('Новое имя:', emp.name);
 
-    const newName = prompt("Новое имя:", emp.name);
-
-    if (newName && newName.trim() !== "") {
-        emp.name = newName.trim();
-        saveEmployees(employees);
-        renderEmployeesPanel();
-        
-    }
+  if (newName && newName.trim() !== '') {
+    emp.name = newName.trim();
+    await saveEmployees(employees);
+    // Обновляем панель сотрудников
+    await renderEmployeesPanel();
+  }
 }
+
 
 //Показ формы
-function removeEmployee() {
-    const select = document.getElementById("employeeSelect");
-    if (!select) return;
-    const index = parseInt(select.value);
-    if (isNaN(index)) return;
-    if (!confirm("Удалить сотрудника из списка?")) return;
+async function removeEmployee() {
+  const select = document.getElementById("employeeSelect");
+  if (!select) return;
+  const employeeId = select.value; // Получаем ID, а не индекс
+  if (!employeeId) return;
 
-    const list = getEmployees();
-    list.splice(index, 1);
-    saveEmployees(list);
+  if (!confirm("Удалить сотрудника из списка?")) return;
 
+  try {
+    const list = await getEmployees();
+    const updatedList = list.filter(e => e.id.toString() !== employeeId.toString());
+    await saveEmployees(updatedList);
+    renderEmployeesPanel();
+    // Обновляем выпадающий список
+    initEmployeeSelect();
+  } catch (error) {
+    console.error("Ошибка при удалении сотрудника из списка:", error);
+    showNotification('error', 'Не удалось удалить сотрудника из списка');
+  }
 }
+
 
 /* ——— ЛОГИКА ШАБЛОНОВ ДЛЯ 1 СОТРУДНИКА ——— */
 
@@ -444,3 +501,24 @@ function applyPatternToEmployee(data, employeeId, type, startDay) {
         pos = (pos + 1) % pattern.length;
     }
 }
+
+async function initEmployeeSelect() {
+  const select = document.getElementById('employeeSelect');
+  if (!select) return;
+
+  const employees = await getEmployees();
+  select.innerHTML = '<option value="">-- Выберите сотрудника --</option>';
+
+  employees.forEach(emp => {
+    const option = document.createElement('option');
+    option.value = emp.id;
+    option.textContent = emp.name;
+    select.appendChild(option);
+  });
+}
+
+// Вызовите эту функцию при загрузке страницы
+document.addEventListener('DOMContentLoaded', initEmployeeSelect);
+
+getEmployees().then(list => console.log("Список сотрудников:", list));
+getMonthData().then(data => console.log("Данные графика:", data));

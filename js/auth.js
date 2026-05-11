@@ -2,13 +2,13 @@
 const Auth = {
     // Проверка авторизации
     checkAuth: function() {
-         return lsGet('authenticated') === 'true' || 
+         return localStorage.getItem('authenticated') === 'true' || 
              sessionStorage.getItem('authenticated') === 'true';
     },
     
     // Получение имени пользователя
     getUsername: function() {
-         return lsGet('username') || 
+         return localStorage.getItem('username') || 
              sessionStorage.getItem('username') || 
                'Пользователь';
     },
@@ -16,8 +16,8 @@ const Auth = {
     // Вход в систему
     login: function(username, rememberMe = false) {
         if (rememberMe) {
-            lsSet('authenticated', 'true');
-            lsSet('username', username);
+            localStorage.setItem('authenticated', 'true');
+            localStorage.setItem('username', username);
         } else {
             sessionStorage.setItem('authenticated', 'true');
             sessionStorage.setItem('username', username);
@@ -29,8 +29,8 @@ const Auth = {
     
     // Выход из системы
     logout: function() {
-        lsRemove('authenticated');
-        lsRemove('username');
+        localStorage.removeItem('authenticated');
+        localStorage.removeItem('username');
         sessionStorage.removeItem('authenticated');
         sessionStorage.removeItem('username');
         

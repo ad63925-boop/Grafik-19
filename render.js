@@ -2,18 +2,31 @@
 
 /* RENDER */
 
-function renderTable() {
+async function renderTable(data = null) {
 
+     try {
 const year = currentDate.getFullYear();
 const month = currentDate.getMonth();
-
 const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-const directory = getEmployees();
+    // Если данные не переданы, загружаем из Firebase
+    if (data === null) {
+      data = await loadMonthDataFromFirebase();
+    }
 
-let data = getMonthData();
+        // Гарантируем, что data — массив
+    if (!Array.isArray(data)) {
+      console.warn("Данные графика не являются массивом, используем пустой массив");
+      data = [];
+    }
+ 
+        // Загружаем список сотрудников (асинхронно)
+    const allEmployees = await getEmployees();
+    if (!Array.isArray(allEmployees)) {
+      console.error("Список сотрудников не является массивом:", allEmployees);
+      return;
+    }
 
-if (!Array.isArray(data)) data = [];
 
 const dayNames = ["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];
 const monthName = `${currentDate.toLocaleString('ru-RU', { month: 'long' }).toUpperCase()} ${currentDate.getFullYear()}`;
@@ -53,21 +66,10 @@ table += `<th class="${isWeekend ? 'weekend' : ''} ${isToday ? 'today' : ''} col
 }
 table += `</tr>`;
 
-/*
-// Если в месячных данных нет записей, создаём строки по каталогу сотрудников
-if (data.length === 0 && directory.length > 0) {
-data = directory.map(emp => ({
-id: emp.id,
-shifts: {}
-}));
-
-lsSetJSON(getKey(), data);
-}
-*/
 // Очищаем массив от null/undefined элементов
 data = data.filter(emp => emp !== null && emp !== undefined);
 
-const allEmployees = getEmployees();
+//const allEmployees = getEmployees();
 
 // Строки сотрудников
 data.forEach((emp, i) => {
@@ -119,12 +121,35 @@ table += `
 table += `</tr>`;
 });
 
-const container = document.getElementById("scheduleTable");
-if (container) container.innerHTML = table;
+    const container = document.getElementById("scheduleTable");
+    if (container) {
+      container.innerHTML = table;
 
-renderEmployeesPanel();
-checkColumnRepeats();
-setTimeout(scrollToToday, 100);
+      // Обновляем панель сотрудников
+      await renderEmployeesPanel();
+
+      // Проверяем повторы смен
+      checkColumnRepeats();
+
+
+      // Прокручиваем к сегодняшнему дню
+      setTimeout(scrollToToday, 100);
+    } else {
+      console.error("Элемент #scheduleTable не найден в DOM");
+    }
+  } catch (error) {
+    console.error("Ошибка при отрисовке таблицы:", error);
+    // Показываем сообщение об ошибке в интерфейсе
+    const container = document.getElementById("scheduleTable");
+    if (container) {
+      container.innerHTML = `
+<tr>
+  <td colspan="32" style="text-align: center; color: red;">
+    Ошибка отрисовки таблицы: ${error.message}
+  </td>
+</tr>`;
+    }
+  }
 }
 
 	/* ======== ПЛАВНАЯ ПРОКРУТКА К СЕГОДНЯШНЕМУ ДНЮ ======== */
@@ -226,42 +251,80 @@ function checkColumnRepeats() {
 }
 
 // Эта функция рендерит панель со списком сотрудников и кнопками редактирования/удаления
-function renderEmployeesPanel() {
-  const employees = getEmployees();
+async function renderEmployeesPanel() {
   const container = document.getElementById("employeesList");
-
   if (!container) return;
 
-  // Проверка: если employees не массив, используем пустой массив
-  const validEmployees = Array.isArray(employees) ? employees : [];
+  // Показываем индикатор загрузки
+  container.innerHTML = '<div class="loading">Загрузка сотрудников...</div>';
 
-  container.innerHTML = "";
+  try {
+    // Асинхронно получаем сотрудников
+    const employees = await getEmployees();
 
-  validEmployees.forEach(emp => {
-    const div = document.createElement("div");
-    div.className = "employee-item";
-    div.innerHTML = `
-      <span>${emp.name}</span>
-      <button class="btn-remove-emp" data-id="${emp.id}">Удалить</button>
+    // Проверка: если employees не массив, используем пустой массив
+    const validEmployees = Array.isArray(employees) ? employees : [];
+
+    if (validEmployees.length === 0) {
+      container.innerHTML = '<div class="no-data">Сотрудники не найдены</div>';
+      return;
+    }
+
+    // Очищаем контейнер
+    container.innerHTML = '';
+
+    validEmployees.forEach(emp => {
+      const div = document.createElement('div');
+      div.className = 'employee-item';
+      div.innerHTML = `
+        <span>${emp.name}</span>
+        <div class="employee-actions">
+          <button class="btn-edit-emp" data-id="${emp.id}" title="Редактировать имя">
+            ✏️
+          </button>
+          <button class="btn-remove-emp" data-id="${emp.id}" title="Удалить сотрудника">
+            🗑️
+          </button>
+        </div>
+      `;
+
+      // Добавляем обработчики событий
+      const removeBtn = div.querySelector('.btn-remove-emp');
+      removeBtn.addEventListener('click', () => {
+        deleteEmployeeForID(emp.id);
+      });
+
+      const editBtn = div.querySelector('.btn-edit-emp');
+      editBtn.addEventListener('click', () => {
+        editEmployeeNameId(emp.id);
+      });
+
+      container.appendChild(div);
+    });
+  } catch (error) {
+    console.error('Ошибка при рендере панели сотрудников:', error);
+    container.innerHTML = `
+      <div class="error">
+        Ошибка загрузки сотрудников: ${error.message}
+      </div>
     `;
-    container.appendChild(div);
-  });
+  }
 }
+
 
 
 async function loadMonthDataFromFirebase() {
   const key = getKey();
-  const snapshot = await dbGet(dbRef(`/schedules/${key}`));
-  return snapshot.exists() ? snapshot.val() : [];
-}
+  console.log("Загрузка данных из:", `/schedules/${key}`);
 
-async function loadAndRenderTable() {
   try {
-    const data = await loadMonthDataFromFirebase();
-    renderTable(data);
+    const snapshot = await dbGet(dbRef(`/schedules/${key}`));
+    const data = snapshot.exists() ? snapshot.val() : [];
+    console.log("Загруженные данные графика:", data);
+    return data;
   } catch (error) {
-    console.error("Ошибка загрузки данных из Firebase:", error);
-    renderTable();
+    console.error("Ошибка загрузки данных месяца:", error);
+    throw error;
   }
 }
 
@@ -305,11 +368,10 @@ scrollToToday();
 
 async function loadAndRenderTable() {
   try {
-    const data = await someAsyncFunction();
-    renderTable(data);
+    const data = await loadMonthDataFromFirebase();
+    await renderTable(data);
   } catch (error) {
-    console.error("Ошибка загрузки данных:", error);
+    console.error("Ошибка загрузки и отрисовки таблицы:", error);
   }
 }
 
-loadAndRenderTable(); // Вызов асинхронной функции
