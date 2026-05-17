@@ -139,6 +139,14 @@ table {
     /* width: 100%; */
 }
 
+.schedule-loading {
+    padding: 24px;
+    text-align: center;
+    font-size: 18px;
+    color: #555;
+    background: white;
+}
+
 /* ---------- ФИКСАЦИЯ ШАПКИ ТАБЛИЦЫ ---------- */
 
 /* фиксированная верхняя строка */

@@ -9,6 +9,18 @@ const year = currentDate.getFullYear();
 const month = currentDate.getMonth();
 const daysInMonth = new Date(year, month + 1, 0).getDate();
 
+    const container = document.getElementById("scheduleTable");
+
+    if (container && data === null) {
+      container.innerHTML = `
+        <tr>
+          <td colspan="${daysInMonth + 4}" class="schedule-loading">
+            Загрузка графика...
+          </td>
+        </tr>
+      `;
+    }
+
     // Если данные не переданы, загружаем из Firebase
     if (data === null) {
       data = await loadMonthDataFromFirebase();
@@ -121,7 +133,6 @@ table += `
 table += `</tr>`;
 });
 
-    const container = document.getElementById("scheduleTable");
     if (container) {
       container.innerHTML = table;
 
