@@ -72,6 +72,43 @@
 </table>
 </div>
 
+<hr><br>
+
+<!-- Заметки -->
+<div class="notes-toolbar">
+  <h3>Заметки</h3>
+
+    <button class="btn-graf" id="btnShowAllNotes">
+    <i class="fa-solid fa-list"></i> Показать все заметки
+  </button>
+  
+  <button class="btn-graf" id="btnShowNoteForm">
+    <i class="fa-solid fa-note-sticky"></i> Добавить заметку
+  </button>
+</div>
+
+<div id="noteForm" class="note-form is-hidden">
+  <div class="note-form-header">
+    <span id="noteFormTitle">Новая заметка</span>
+    <button class="note-close-btn" id="btnCloseNoteForm">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+  <textarea id="noteText" placeholder="Текст заметки"></textarea>
+
+  <label for="noteReminderDate">Дата напоминания</label>
+  <input type="date" id="noteReminderDate">
+
+  <div class="note-form-actions">
+    <button class="btn-graf" id="btnSaveNote">
+      <i class="fa-solid fa-floppy-disk"></i> Сохранить
+    </button>
+  </div>
+</div>
+
+<div id="notesList" class="notes-list"></div>
+
 <!-- График на одного охраника -->
 <div id="calendarView" hidden>
 
@@ -227,6 +264,7 @@
 <script src="employees.js"></script>
 <script src="schedule.js"></script>
 <script src="app.js"></script>
+<script src="js/note.js"></script>
 
 
 <!-- 5. Меню (в конце, после всего основного кода) -->

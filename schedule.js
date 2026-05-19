@@ -425,6 +425,10 @@ async function switchScheduleMonth(date) {
     if (typeof renderTable === "function") {
         await renderTable();
     }
+
+    if (typeof renderNotes === "function") {
+    await renderNotes();
+}
 }
 
 //Удаление сотрудника по id
@@ -442,8 +446,6 @@ async function deleteEmployeeForID(employeeId) {
     showNotification('error', 'Не удалось удалить сотрудника');
   }
 }
-
-
 
 // Эта функция вызывается при клике на кнопку редактирования сотрудника и позволяет изменить его имя
 async function editEmployeeNameId(employeeId) {
@@ -534,3 +536,4 @@ document.addEventListener('DOMContentLoaded', initEmployeeSelect);
 
 getEmployees().then(list => console.log("Список сотрудников:", list));
 getMonthData().then(data => console.log("Данные графика:", data));
+
