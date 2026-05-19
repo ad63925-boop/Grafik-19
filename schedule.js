@@ -374,15 +374,15 @@ async function changeEmployeeInRow(rowIndex, newEmployeeId) {
   }
 }
 
-
 /* ——— КНОПКА СЕГОДНЯ ——— */
 var todayBtn = document.getElementById("btnToDay");
 todayBtn.addEventListener("click", goToday);
-function goToday() {
-    currentDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+
+async function goToday() {
+    currentDate = new Date(); // Устанавливаем текущую дату (сегодня)
     updatePicker();
-    
-}
+    await switchScheduleMonth(currentDate);
+}  
 
 /* ——— МЕСЯЦЫ ——— */
 var prevMonthBtn = document.getElementById("prevMonthBtn");
@@ -390,16 +390,22 @@ var nextMonthBtn = document.getElementById("nextMonthBtn");
 prevMonthBtn.addEventListener("click", prevMonth);
 nextMonthBtn.addEventListener("click", nextMonth);
 
-function prevMonth() {
-    currentDate.setMonth(currentDate.getMonth() - 1);
-    updatePicker();
-    
+async function prevMonth() {
+    const selectedMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+    await switchScheduleMonth(selectedMonth);
 }
 
-function nextMonth() {
-    currentDate.setMonth(currentDate.getMonth() + 1);
-    updatePicker();
-    
+async function nextMonth() {
+    const selectedMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+    await switchScheduleMonth(selectedMonth);
+}
+
+var monthPicker = document.getElementById("monthPicker");
+monthPicker.addEventListener("change", loadMonthFromPicker);
+
+async function loadMonthFromPicker() {
+    let v = document.getElementById("monthPicker").value.split("-");
+    await switchScheduleMonth(new Date(v[0], v[1]-1, 1));
 }
 
 function updatePicker() {
@@ -407,12 +413,18 @@ function updatePicker() {
         currentDate.getFullYear() + "-" + String(currentDate.getMonth()+1).padStart(2,"0");
 }
 
-var monthPicker = document.getElementById("monthPicker");
-monthPicker.addEventListener("change", loadMonthFromPicker);
-function loadMonthFromPicker() {
-    let v = document.getElementById("monthPicker").value.split("-");
-    currentDate = new Date(v[0], v[1]-1, 1);
-    
+async function switchScheduleMonth(date) {
+    if (typeof setCurrentDate === "function") {
+        setCurrentDate(date);
+    } else {
+        currentDate = new Date(date);
+    }
+
+    updatePicker();
+
+    if (typeof renderTable === "function") {
+        await renderTable();
+    }
 }
 
 //Удаление сотрудника по id

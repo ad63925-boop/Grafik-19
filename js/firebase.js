@@ -80,7 +80,7 @@ try {
       throw new Error("dbOnValue callback must be a function");
     }
     ref.on('value', callback);
-    return ref;
+    return () => ref.off('value', callback);
   };
 
   console.log("🔥 Firebase (compat-режим) готов");
