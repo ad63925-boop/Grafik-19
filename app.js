@@ -199,15 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-//Показ и скрытие формы
-var btnClosePanelSeting = document.getElementById("btnClosePanelSeting");
-btnClosePanelSeting.addEventListener("click", closeSettings);
-function closeSettings() {
-    const panel = document.getElementById("panelSeting");
-    panel.classList.add("is-hidden");
-    panel.classList.remove("is-visible");
-}
-
 //Показать скрыть панель с сотрудниками
 const panel = document.getElementById("employeesPanel");
 
@@ -226,6 +217,112 @@ var btnCloseEmployeesPanel = document.getElementById("btnCloseEmployeesPanel");
 btnCloseEmployeesPanel.addEventListener("click", closeEmployeesPanel);
 function closeEmployeesPanel() {
     panel.style.display = "none";
+}
+
+//Экспорт и импорт
+//Кнопки
+const btnExportData = document.getElementById("btnExportData");
+const btnImportData = document.getElementById("btnImportData");
+const fileInput = document.getElementById("fileInput");
+
+if (btnExportData) {
+  btnExportData.addEventListener("click", exportData);
+}
+
+if (btnImportData && fileInput) {
+  btnImportData.addEventListener("click", () => {
+    fileInput.click();
+  });
+}
+
+//Экспорт данных в JSON файл
+async function exportData() {
+  try {
+    const key = getKey();
+
+    const employeesSnapshot = await dbGet(dbRef("employees"));
+    const scheduleSnapshot = await dbGet(dbRef(`/schedules/${key}`));
+
+    const exportObject = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      monthKey: key,
+      employees: employeesSnapshot.exists() ? employeesSnapshot.val() : [],
+      schedule: scheduleSnapshot.exists() ? scheduleSnapshot.val() : []
+    };
+
+    const json = JSON.stringify(exportObject, null, 2);
+    const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+
+    saveAs(blob, `${key}_backup.json`);
+
+    if (typeof Swal !== "undefined") {
+      Swal.fire({
+        icon: "success",
+        title: "Экспорт готов",
+        text: `Файл ${key}_backup.json сохранен`,
+        timer: 1800,
+        showConfirmButton: false
+      });
+    }
+  } catch (error) {
+    console.error("Ошибка экспорта:", error);
+    showNotification("error", "Не удалось экспортировать данные");
+  }
+}
+
+//Импорт данных из JSON файла
+async function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const imported = JSON.parse(text);
+
+    if (!imported || !imported.monthKey) {
+      throw new Error("Некорректный файл импорта");
+    }
+
+    const currentKey = getKey();
+
+    const confirmed = confirm(
+      `Импортировать данные из файла?\n\n` +
+      `Месяц в файле: ${imported.monthKey}\n` +
+      `Текущий месяц: ${currentKey}\n\n` +
+      `Сотрудники и график текущего месяца будут перезаписаны.`
+    );
+
+    if (!confirmed) return;
+
+    const employees = Array.isArray(imported.employees) ? imported.employees : [];
+    const schedule = Array.isArray(imported.schedule) ? imported.schedule : [];
+
+    await dbSet(dbRef("employees"), employees);
+    await dbSet(dbRef(`/schedules/${currentKey}`), schedule);
+
+    await updateEmployeeSelect();
+    await renderTable(schedule);
+
+    if (typeof renderEmployeesPanel === "function") {
+      await renderEmployeesPanel();
+    }
+
+    if (typeof Swal !== "undefined") {
+      Swal.fire({
+        icon: "success",
+        title: "Импорт завершен",
+        text: "Данные успешно загружены",
+        timer: 1800,
+        showConfirmButton: false
+      });
+    }
+  } catch (error) {
+    console.error("Ошибка импорта:", error);
+    showNotification("error", "Не удалось импортировать файл");
+  } finally {
+    event.target.value = "";
+  }
 }
 
 async function initializeApp() {

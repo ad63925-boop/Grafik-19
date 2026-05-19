@@ -57,7 +57,7 @@
 		margin: 0px;
 	}
     
-    /* ---------- Кнопки ---------- */
+    /* ---------- Настройки ---------- */
 
     .panel {
         display: grid;
@@ -68,10 +68,47 @@
 
 	#panelSeting{
 	width: 250px;
-    margin: auto;
-    padding-top: 5px;
+    margin: 10px auto;
+    background-color: white;
+    box-shadow: 1px 2px 5px 2px black;
+    text-align: center;
+    padding-bottom: 10px;
 	}
 	
+    #panelSeting button {
+        width: 90%;
+        margin: 2px auto;
+        border-radius: 7px;
+    }
+
+    #panelSeting input {
+        width: 90%;
+        margin: 2px auto;
+        border-radius: 3px;
+    }
+    #panelSeting select {
+        width: 90%;
+        margin: 2px auto;
+        border-radius: 3px;
+    }
+
+    .panel-header {
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+    background-color: silver;
+}
+
+.panel-header span {    
+    margin: 0 auto;
+    color: cornflowerblue;
+    font-size: 2rem;
+}
+
     select {
         appearance: none;
         padding: 0;
@@ -279,26 +316,6 @@ td:nth-child(2) {
 }
 .printCopy {
     text-align: center;
-}
-
-.panel-header {
-    position: sticky;
-    top: 0;
-    height: 35px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: bold;
-    margin-bottom: 8px;
-    background-color: white;
-}
-
-.btn-close {
-    background: none;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    color: #fc0202;
 }
 
 .btn-close:hover {

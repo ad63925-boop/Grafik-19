@@ -16,10 +16,6 @@
 
      <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-logo">
-                <i class="fas fa-shield-alt"></i>
-                <span>Защищенная система</span>
-            </div>
             <div class="nav-menu">
                 <a href="profile.html" class="nav-link"><i class="fas fa-user"></i> Профиль</a>
                 <button class="nav-logout" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i> Выйти</button>
@@ -101,19 +97,17 @@
 <div id="panelSeting" class="is-hidden">
 	<div class="panel-header">
     <span><i class="fa-solid fa-gear"></i> Настройки</span>
-    <button class="btn-close" id="btnClosePanelSeting">
-      <i class="fa-solid fa-xmark">
-    </i></button>
 </div>
 
 <div class="panel">
-<input type="text" id="newEmployeeName" class="inputNewName" placeholder="+ Добавить сотрудника в базу">
+<input type="text" id="newEmployeeName" class="inputNewName" placeholder="ФИО нового сотрудника...">
 <button class="btn-graf" id="BtnAddEmployeeToList">
-  <i class="fa-solid fa-plus"></i> В базу</button>
+  <i class="fa-solid fa-plus"></i> Добавить в базу</button>
 <br>
 <select id="employeeSelect" class="selectName"></select>
-<button class="btn-graf" id="btnAddEmployeeToTable"><i class="fa-solid fa-plus"></i> В график отдельно</button>
-<button class="btn-graf" id="btnRemoveEmployeeFromList"><i class="fa-solid fa-trash"></i> Удалить</button>
+<button class="btn-graf" id="btnAddEmployeeToTable"><i class="fa-solid fa-plus"></i> Добавить в график отдельно</button>
+<button class="btn-graf" id="btnRemoveEmployeeFromList"><i class="fa-solid fa-trash"></i> Удалить сотрудника</button>
+<hr>
 <button class="btn-graf" id="btnShowEmployeesPanel"><i class="fa-solid fa-database"></i> База Сотрудников!</button>
 <button class="btn-graf" id="btnClearShifts"><i class="fa-solid fa-broom"></i> Очистить смены</button>
 </div>
@@ -122,7 +116,7 @@
 
 <div class="panel">
     <button id="screenshotBtn" class="btn-graf">
-      <i class="fa-regular fa-images"></i> Скриншот</button>
+      <i class="fa-regular fa-images"></i> Скриншот графика</button>
 </div>
 <hr>
 <!-- Шаблоны смен -->
@@ -146,7 +140,7 @@
 </div>
 <hr>
 	<div class="panel">
-	<label for="printScale">Размер печати:</label>
+	<label for="printScale">Выберите размер печати:</label>
     <select id="printScale" class="printScale">
         <option value="0.6">Маленький</option>
         <option value="0.8" selected>Средний</option>
