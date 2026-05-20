@@ -12,12 +12,6 @@ window.currentDate.setDate(1);
 document.getElementById("monthPicker").value =
     currentDate.getFullYear() + "-" + String(currentDate.getMonth()+1).padStart(2,"0");
 
-
-
-// Вызываем инициализацию при загрузке страницы
-window.addEventListener("load", initBatchForm);
-
-
 // Переключение панели настроек
 var btnSetting = document.getElementById("btnSetting");
 
@@ -94,30 +88,31 @@ function printSchedule() {
   printContainer.innerHTML = "";
 }
 
-// Инициализация выпадающих списков при загрузке
-function initBatchForm() {
+// Назначение смен по датам из календаря
+let selectedBatchDates = new Set();
+
+async function initBatchForm() {
+  await populateBatchForm();
+}
+
+async function populateBatchForm() {
   const empSelect = document.getElementById("batchEmpSelect");
   const shiftSelect = document.getElementById("batchShiftSelect");
-  const dateSelect = document.getElementById("batchDatesSelect");
 
-  if (!empSelect || !shiftSelect || !dateSelect) return;
+  if (!empSelect || !shiftSelect) return;
 
-  empSelect.innerHTML = "";
+  empSelect.innerHTML = '<option value="">-- выбрать --</option>';
+  shiftSelect.innerHTML = '<option value="">-- смена --</option>';
 
-  // Получаем список сотрудников
-  const list = getEmployees();
+  const employees = await getEmployees();
 
-  // Проверка: если list не массив, используем пустой массив
-  const employees = Array.isArray(list) ? list : [];
-
-  employees.forEach((emp, index) => {
+  employees.forEach(emp => {
     const option = document.createElement("option");
-    option.value = emp.id; // Используем ID сотрудника
-    option.textContent = `${emp.name} (ID: ${emp.id})`;
+    option.value = emp.id;
+    option.textContent = emp.name;
     empSelect.appendChild(option);
   });
 
-  // Заполняем смены
   SHIFT_TYPES.forEach(shift => {
     if (!shift) return;
 
@@ -127,77 +122,146 @@ function initBatchForm() {
     shiftSelect.appendChild(option);
   });
 
-  // Заполняем даты
+  selectedBatchDates.clear();
+  renderBatchCalendar();
+}
+
+function renderBatchCalendar() {
+  const grid = document.getElementById("batchCalendarGrid");
+  const monthLabel = document.getElementById("batchCalendarMonth");
+  const selectedLabel = document.getElementById("batchSelectedDates");
+
+  if (!grid || !monthLabel || !selectedLabel) return;
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
+  const emptyCells = firstDay === 0 ? 6 : firstDay - 1;
 
-  dateSelect.innerHTML = "";
-  for (let d = 1; d <= daysInMonth; d++) {
-    const option = document.createElement("option");
-    option.value = d;
-    option.textContent = d;
-    dateSelect.appendChild(option);
+  monthLabel.textContent = currentDate.toLocaleDateString("ru-RU", {
+    month: "long",
+    year: "numeric"
+  });
+
+  grid.innerHTML = "";
+
+  for (let i = 0; i < emptyCells; i++) {
+    const empty = document.createElement("span");
+    empty.className = "batch-calendar-empty";
+    grid.appendChild(empty);
   }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const btn = document.createElement("button");
+    const date = new Date(year, month, day);
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+
+    btn.type = "button";
+    btn.textContent = day;
+    btn.className = "batch-calendar-day";
+    btn.classList.toggle("is-weekend", isWeekend);
+    btn.classList.toggle("is-selected", selectedBatchDates.has(day));
+
+    btn.addEventListener("click", () => {
+      if (selectedBatchDates.has(day)) {
+        selectedBatchDates.delete(day);
+      } else {
+        selectedBatchDates.add(day);
+      }
+
+      renderBatchCalendar();
+    });
+
+    grid.appendChild(btn);
+  }
+
+  updateBatchSelectedDatesLabel();
 }
 
+function updateBatchSelectedDatesLabel() {
+  const selectedLabel = document.getElementById("batchSelectedDates");
+  if (!selectedLabel) return;
 
-//Добавление смен по датам и сотрудникам
-document.addEventListener('DOMContentLoaded', function() {
-    const showBatchBtn = document.getElementById('btnShowapplyBatchShift');
-    const closeBtn = document.getElementById('btnCloseBath');
-    const batchPanel = document.getElementById('batchShift');
+  const dates = Array.from(selectedBatchDates).sort((a, b) => a - b);
 
-    function populateBatchForm() {
-        const empSelect = document.getElementById('batchEmpSelect');
-        const shiftSelect = document.getElementById('batchShiftSelect');
-        const dateSelect = document.getElementById('batchDatesSelect');
+  selectedLabel.textContent = dates.length
+    ? `Выбрано: ${dates.join(", ")}`
+    : "Даты не выбраны";
+}
 
-        empSelect.innerHTML = '<option value="">-- выбрать --</option>';
-        shiftSelect.innerHTML = '';
-        dateSelect.innerHTML = '';
+function clearBatchDates() {
+  selectedBatchDates.clear();
+  renderBatchCalendar();
+}
 
-        const employees = getEmployees();
-        employees.forEach(emp => {
-            const option = document.createElement('option');
-            option.value = emp.id;
-            option.textContent = emp.name;
-            empSelect.appendChild(option);
-        });
+async function applyBatchShifts() {
+  const empSelect = document.getElementById("batchEmpSelect");
+  const shiftSelect = document.getElementById("batchShiftSelect");
 
-        SHIFT_TYPES.forEach(shift => {
-            const option = document.createElement('option');
-            option.value = shift;
-            option.textContent = shift;
-            shiftSelect.appendChild(option);
-        });
+  const employeeId = empSelect.value;
+  const shift = shiftSelect.value;
+  const dates = Array.from(selectedBatchDates).sort((a, b) => a - b);
 
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        for (let day = 1; day <= daysInMonth; day++) {
-            const option = document.createElement('option');
-            option.value = day;
-            option.textContent = day;
-            dateSelect.appendChild(option);
-        }
-    }
+  if (!employeeId) return showNotification("warning", "Выберите сотрудника");
+  if (!shift) return showNotification("warning", "Выберите смену");
+  if (!dates.length) return showNotification("warning", "Выберите даты");
 
-    if (showBatchBtn && batchPanel) {
-        showBatchBtn.addEventListener('click', function() {
-            batchPanel.classList.add('batch-shift-form-block');
-            panelSeting.classList.toggle('is-hidden');
-            populateBatchForm();
-        });
-    }
+  const key = getKey();
+  const snapshot = await dbGet(dbRef(`/schedules/${key}`));
+  let data = snapshot.exists() ? snapshot.val() : [];
 
-    if (closeBtn && batchPanel) {
-        closeBtn.addEventListener('click', function() {
-            batchPanel.classList.remove('batch-shift-form-block');
-            panelSeting.classList.toggle('is-hidden');
-        });
-    }
+  if (!Array.isArray(data)) data = [];
+
+  let employee = data.find(item => String(item.id) === String(employeeId));
+
+  if (!employee) {
+    employee = {
+      id: Number(employeeId),
+      shifts: {}
+    };
+    data.push(employee);
+  }
+
+  if (!employee.shifts) employee.shifts = {};
+
+  dates.forEach(day => {
+    employee.shifts[day] = shift;
+  });
+
+  await dbSet(dbRef(`/schedules/${key}`), data);
+
+  graphChanged = true;
+  await renderTable(data);
+  closeBatchForm();
+
+  showNotification("success", `Смена "${shift}" назначена на ${dates.length} дн.`);
+}
+
+function closeBatchForm() {
+  const batchPanel = document.getElementById("batchShift");
+  batchPanel.classList.remove("batch-shift-form-block");
+  panelSeting.classList.remove("is-hidden");
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const showBatchBtn = document.getElementById("btnShowapplyBatchShift");
+  const closeBtn = document.getElementById("btnCloseBath");
+  const applyBtn = document.getElementById("btnApplyBatchShifts");
+  const clearDatesBtn = document.getElementById("btnClearBatchDates");
+  const batchPanel = document.getElementById("batchShift");
+
+  showBatchBtn.addEventListener("click", async function() {
+    batchPanel.classList.add("batch-shift-form-block");
+    panelSeting.classList.add("is-hidden");
+    await populateBatchForm();
+  });
+
+  closeBtn.addEventListener("click", closeBatchForm);
+  applyBtn.addEventListener("click", applyBatchShifts);
+  clearDatesBtn.addEventListener("click", clearBatchDates);
 });
+// Конец назначения смен по датам из календаря
 
 //Показать скрыть панель с сотрудниками
 const panel = document.getElementById("employeesPanel");

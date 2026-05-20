@@ -72,7 +72,9 @@
 </table>
 </div>
 
-<hr><br>
+<br>
+<hr>
+<br>
 
 <!-- Заметки -->
 <div class="notes-toolbar">
@@ -81,7 +83,7 @@
     <button class="btn-graf" id="btnShowAllNotes">
     <i class="fa-solid fa-list"></i> Показать все заметки
   </button>
-  
+
   <button class="btn-graf" id="btnShowNoteForm">
     <i class="fa-solid fa-note-sticky"></i> Добавить заметку
   </button>
@@ -159,12 +161,13 @@
 <!-- Шаблоны смен -->
 <div class="panel">
     <button class="btn-graf" id="btnApplyTemplateForOne4">
-      <i class="fa-solid fa-clone"></i> Шаблон 2д/2в</button>
-    <button class="btn-graf" id="btnApplyTemplateForOne">
       <i class="fa-solid fa-clone"></i> Шаблон 4д/2в</button>
+    <button class="btn-graf" id="btnApplyTemplateForOne">
+      <i class="fa-solid fa-clone"></i> Шаблон 2д/2в</button>
     <button class="btn-graf" id="btnShowapplyBatchShift">
       <i class="fa-regular fa-calendar-check"></i> Добавить смены</button>
 </div>
+
 <hr>
 
 <!-- Экспорт и импорт -->
@@ -190,6 +193,7 @@
 	</div>
 </div>
 
+
 <!-- Назначение смен -->
 
 <!-- Назначение смен по датам -->
@@ -212,12 +216,28 @@
     </select>
   </div>
 
-  <!-- Выбор дат (multiple) -->
+  <!-- Выбор дат -->
   <div style="margin: 10px 0;">
     <label>Даты:</label><br>
-    <select id="batchDatesSelect" multiple size="31" class="batch-date-select">
-      <!-- Опции: числа месяца -->
-    </select>
+    <div class="batch-calendar">
+      <div class="batch-calendar-head">
+        <span id="batchCalendarMonth"></span>
+        <button type="button" id="btnClearBatchDates" title="Очистить выбор">
+          <i class="fa-solid fa-eraser"></i>
+        </button>
+      </div>
+      <div class="batch-calendar-weekdays">
+        <span>Пн</span>
+        <span>Вт</span>
+        <span>Ср</span>
+        <span>Чт</span>
+        <span>Пт</span>
+        <span>Сб</span>
+        <span>Вс</span>
+      </div>
+      <div id="batchCalendarGrid" class="batch-calendar-grid"></div>
+      <div id="batchSelectedDates" class="batch-selected-dates">Даты не выбраны</div>
+    </div>
   </div>
 
   <div class="btn-set-close">
@@ -227,8 +247,9 @@
 
 </div>
 
+
  <!-- База сотрудников -->
-<div id="employeesPanel" class="panel-hidden" style="margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:8px;">
+<div id="employeesPanel" class="panel-visible" style="margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:8px;">
 
   <div class="employees-header">
     <span>База сотрудников</span>

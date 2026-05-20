@@ -263,11 +263,11 @@ function checkColumnRepeats() {
 
 // Эта функция рендерит панель со списком сотрудников и кнопками редактирования/удаления
 async function renderEmployeesPanel() {
-  const container = document.getElementById("employeesList");
-  if (!container) return;
+  const employeesListcont = document.getElementById("employeesList");
+  if (!employeesListcont) return;
 
   // Показываем индикатор загрузки
-  container.innerHTML = '<div class="loading">Загрузка сотрудников...</div>';
+  employeesListcont.innerHTML = '<div class="loading">Загрузка сотрудников...</div>';
 
   try {
     // Асинхронно получаем сотрудников
@@ -277,12 +277,12 @@ async function renderEmployeesPanel() {
     const validEmployees = Array.isArray(employees) ? employees : [];
 
     if (validEmployees.length === 0) {
-      container.innerHTML = '<div class="no-data">Сотрудники не найдены</div>';
+      employeesListcont.innerHTML = '<div class="no-data">Сотрудники не найдены</div>';
       return;
     }
 
     // Очищаем контейнер
-    container.innerHTML = '';
+    employeesListcont.innerHTML = '';
 
     validEmployees.forEach(emp => {
       const div = document.createElement('div');
@@ -291,10 +291,10 @@ async function renderEmployeesPanel() {
         <span>${emp.name}</span>
         <div class="employee-actions">
           <button class="btn-edit-emp" data-id="${emp.id}" title="Редактировать имя">
-            ✏️
+            ✏️ Edit
           </button>
           <button class="btn-remove-emp" data-id="${emp.id}" title="Удалить сотрудника">
-            🗑️
+            🗑️ Del
           </button>
         </div>
       `;
@@ -310,11 +310,11 @@ async function renderEmployeesPanel() {
         editEmployeeNameId(emp.id);
       });
 
-      container.appendChild(div);
+      employeesListcont.appendChild(div);
     });
   } catch (error) {
     console.error('Ошибка при рендере панели сотрудников:', error);
-    container.innerHTML = `
+    employeesListcont.innerHTML = `
       <div class="error">
         Ошибка загрузки сотрудников: ${error.message}
       </div>
@@ -340,7 +340,7 @@ async function loadMonthDataFromFirebase() {
 }
 
 
-//Скрытие формы
+//Скрытие формы добавления смен из календаря
 var btnCloseBath = document.getElementById("btnCloseBath");
 btnCloseBath.addEventListener("click", closeBath);
 function closeBath(){

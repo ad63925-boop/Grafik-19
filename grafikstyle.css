@@ -67,6 +67,10 @@
     }
 
 	#panelSeting{
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-right: 20px;    
 	width: 250px;
     margin: 10px auto;
     background-color: white;
@@ -323,22 +327,7 @@ td:nth-child(2) {
     background-color: red;
 }
 
-.employees-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:10px;
-font-weight:bold;
-}
 
-.employees-header button{
-border:none;
-background:#ff4d4d;
-color:white;
-padding:4px 8px;
-cursor:pointer;
-border-radius:4px;
-}
 
 /* ---------- ПЕЧАТЬ ---------- */
 @media print {
@@ -372,7 +361,9 @@ border-radius:4px;
     #btnSetting,
     #panelSeting,
     .notes-toolbar,
-    .notes-list {
+    .notes-list,
+    .btn-option-edit,
+    .btn-option-delete {
         display: none !important;
     }
 
@@ -607,18 +598,62 @@ border-radius:4px;
 }
 
 .panel-hidden {
-    display: none;
+    display: block !important;
 }
 
 .panel-visible {
-    display: block !important;
+    display: none;
     background-color: white;
+    box-shadow: 1px 2px 3px 1px #000000;
+    margin: 20px;
+    min-width: 400px;
 }
 
 .panel-visible h3 {
     text-align: center;
     margin-top: 0;
     color: red;
+}
+
+.employee-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    border-bottom: 1px solid #eee;
+    
+}
+
+.employees-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+font-weight:bold;
+font-size: 2rem;
+}
+
+.employees-header button{
+border:none;
+background:#ff4d4d;
+color:white;
+padding:4px 8px;
+cursor:pointer;
+border-radius:4px;
+}
+
+.employee-actions button{
+    border: none;
+    width: 75px;
+    padding: 2px;
+    border-radius: 5px;
+    background-color: #8cb6e1;
+}
+
+.employee-actions button:hover {
+    background-color: #1976d2;
+    color: white;
+    cursor: pointer;
 }
 
 .btn-option-edit {
@@ -724,6 +759,7 @@ border-radius:4px;
     display: grid;
     gap: 12px;
     margin: 10px 0 24px;
+    min-width: 400px;
 }
 
 .note-card {
@@ -815,4 +851,206 @@ border-radius:4px;
     gap: 8px;
     flex-wrap: wrap;
     justify-content: flex-end;
+}
+
+.notes-toolbar {
+    min-width: 400px;
+}
+
+/*стили для календаря назначения смен*/
+.batch-shift-form {
+    display: none;
+    width: min(420px, 94vw);
+    margin: 18px auto;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #dbe4ee;
+    border-radius: 10px;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+    text-align: left;
+}
+
+.batch-shift-form-block {
+    display: block;
+}
+
+.batch-shift-form h4 {
+    margin: 0 0 14px;
+    text-align: center;
+    color: #1f2937;
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.batch-shift-form label {
+    display: inline-block;
+    margin-bottom: 6px;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.batch-user-select,
+.batch-shift-select {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #111827;
+    font-size: 15px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.batch-user-select:focus,
+.batch-shift-select:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.14);
+}
+
+.batch-calendar {
+    width: 100%;
+    padding: 12px;
+    margin: 6px auto 0;
+    background: #ffffff;
+    border: 1px solid #d7e0ea;
+    border-radius: 10px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.1);
+}
+
+.batch-calendar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.batch-calendar-head span {
+    color: #1f2937;
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: capitalize;
+}
+
+.batch-calendar-head button {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    color: #475569;
+    background: #f1f5f9;
+    cursor: pointer;
+}
+
+.batch-calendar-head button:hover {
+    background: #e2e8f0;
+}
+
+.batch-calendar-weekdays,
+.batch-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.batch-calendar-weekdays {
+    margin-bottom: 6px;
+}
+
+.batch-calendar-weekdays span {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.batch-calendar-empty {
+    min-height: 36px;
+}
+
+.batch-calendar-day {
+    min-width: 0;
+    height: 36px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #1f2937;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 800;
+    transition: 0.16s ease;
+}
+
+.batch-calendar-day:hover {
+    border-color: #1976d2;
+    background: #e8f2ff;
+}
+
+.batch-calendar-day.is-weekend {
+    color: #dc2626;
+    background: #fff1f2;
+}
+
+.batch-calendar-day.is-today {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.16);
+}
+
+.batch-calendar-day.is-selected {
+    border-color: #1976d2;
+    background: #1976d2;
+    color: #ffffff;
+    box-shadow: 0 7px 16px rgba(25, 118, 210, 0.28);
+}
+
+.batch-selected-dates {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.35;
+    text-align: center;
+}
+
+.btn-set-close {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.btn-set-close button {
+    min-height: 36px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+#btnApplyBatchShifts {
+    background: #1976d2;
+    color: #ffffff;
+}
+
+#btnApplyBatchShifts:hover {
+    background: #0d47a1;
+}
+
+#btnCloseBath {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+#btnCloseBath:hover {
+    background: #d1d5db;
 }
