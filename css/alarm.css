@@ -1,0 +1,74 @@
+.tomorrow-alarm-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px auto;
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid #dbe4ee;
+    border-left: 5px solid #1976d2;
+    border-radius: 10px;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.12);
+    text-align: left;
+}
+
+.tomorrow-alarm-icon {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 10px;
+    background: #e8f2ff;
+    color: #1976d2;
+    font-size: 18px;
+}
+
+.tomorrow-alarm-title {
+    color: #111827;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.tomorrow-alarm-text {
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.tomorrow-alarm-box.is-active {
+    border-left-color: #1976d2;
+}
+
+.tomorrow-alarm-box.is-active .tomorrow-alarm-icon {
+    background: #e8f2ff;
+    color: #1976d2;
+}
+
+.tomorrow-alarm-box.is-free {
+    border-left-color: #16a34a;
+}
+
+.tomorrow-alarm-box.is-free .tomorrow-alarm-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.tomorrow-alarm-box.is-muted {
+    border-left-color: #94a3b8;
+}
+
+.tomorrow-alarm-box.is-muted .tomorrow-alarm-icon {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.tomorrow-alarm-box.is-error {
+    border-left-color: #dc2626;
+}
+
+.tomorrow-alarm-box.is-error .tomorrow-alarm-icon {
+    background: #fee2e2;
+    color: #dc2626;
+}

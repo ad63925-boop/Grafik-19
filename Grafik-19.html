@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="grafikstyle.css">
 <link rel="stylesheet" href="../burgerMenu/menustyle.css">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/alarm.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3845/3845798.png">
@@ -72,6 +73,9 @@
 </table>
 </div>
 
+<br>
+<!-- Блок с напоминаниями на завтра -->
+<div id="tomorrowAlarmBox" class="tomorrow-alarm-box" hidden></div>
 <br>
 <hr>
 <br>
@@ -286,6 +290,7 @@
 <script src="schedule.js"></script>
 <script src="app.js"></script>
 <script src="js/note.js"></script>
+<script src="notify_alarm.js"></script>
 
 
 <!-- 5. Меню (в конце, после всего основного кода) -->

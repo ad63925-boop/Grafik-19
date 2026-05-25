@@ -81,6 +81,7 @@
 	
     #panelSeting button {
         width: 90%;
+        padding: 10px;
         margin: 2px auto;
         border-radius: 7px;
     }
@@ -759,7 +760,6 @@ border-radius:4px;
     display: grid;
     gap: 12px;
     margin: 10px 0 24px;
-    min-width: 400px;
 }
 
 .note-card {
@@ -851,10 +851,6 @@ border-radius:4px;
     gap: 8px;
     flex-wrap: wrap;
     justify-content: flex-end;
-}
-
-.notes-toolbar {
-    min-width: 400px;
 }
 
 /*стили для календаря назначения смен*/

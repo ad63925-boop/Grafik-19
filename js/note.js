@@ -41,6 +41,13 @@ function openEditNoteForm(note) {
   document.getElementById("noteReminderDate").value = note.reminderDate;
 
   document.getElementById("noteForm").classList.remove("is-hidden");
+
+    //Прокрутка к форме заметки при открытии
+    noteForm.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
 }
 
 function closeNoteForm() {
@@ -160,7 +167,12 @@ async function renderNotes() {
     const notes = await getNotes();
     const today = getTodayString();
 
-  const visibleNotes = showAllNotes ? notes : notes.filter(note => note.reminderDate === today);
+const visibleNotes = (showAllNotes
+  ? notes
+  : notes.filter(note => note.reminderDate <= today)
+).sort((a, b) => {
+  return new Date(a.reminderDate) - new Date(b.reminderDate);
+});
 
 if (visibleNotes.length === 0) {
   container.innerHTML = showAllNotes

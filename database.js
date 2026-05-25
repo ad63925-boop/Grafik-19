@@ -133,13 +133,12 @@ function syncMonth() {
   }
 
   console.log("Синхронизация с ключом:", key);
-  currentSyncSubscription = dbOnValue(dbRef(key), (snapshot) => {
+  currentSyncSubscription = dbOnValue(dbRef(`/schedules/${key}`), (snapshot) => {
     if (snapshot.exists()) {
       const data = snapshot.val();
     }
   });
 }
-
 
 // Функция для остановки синхронизации
 function stopSyncMonth() {

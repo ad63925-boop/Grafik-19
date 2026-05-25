@@ -98,40 +98,45 @@ async function addEmployeeToTable() {
   }
 }
 
-
-
-// Эта функция удаляет сотрудника из графика по индексу строки, который соответствует позиции в массиве данных графика
+//Удаление сотрудника из графика по индексу строки в таблице
 async function deleteEmployee(employeeIndex) {
   const key = getKey();
 
   try {
-    // Загружаем текущие данные из Firebase
     const snapshot = await dbGet(dbRef(`/schedules/${key}`));
     let data = snapshot.exists() ? snapshot.val() : [];
 
+    if (!Array.isArray(data)) data = [];
+
     if (employeeIndex < 0 || employeeIndex >= data.length) return;
 
-    // Получаем имя сотрудника для красивого сообщения
-    const directory = getEmployees();
-    const employee = directory.find(e => e.id === data[employeeIndex].id);
-    const employeeName = employee ? employee.name : "сотрудника";
-
-    const isConfirmed = confirm(
-      `Вы уверены, что хотите удалить ${employeeName} из графика?\n\nЭто действие нельзя отменить.`
+    const directory = await getEmployees();
+    const employee = directory.find(e =>
+      String(e.id) === String(data[employeeIndex].id)
     );
 
-    if (!isConfirmed) return; // если нажали "Отмена" — ничего не делаем
+    const employeeName = employee ? employee.name : "сотрудника";
 
-    // Удаляем сотрудника по индексу
+const result = await Swal.fire({
+  icon: "warning",
+  title: "Удалить из графика?",
+  html: `Сотрудник: <b>${employeeName}</b><br><br>Это действие нельзя отменить.`,
+  showCancelButton: true,
+  confirmButtonText: "Да, удалить",
+  cancelButtonText: "Отмена",
+  confirmButtonColor: "#dc2626",
+  cancelButtonColor: "#64748b",
+  reverseButtons: true
+});
+
+if (!result.isConfirmed) return;
+
     data.splice(employeeIndex, 1);
 
-    // Сохраняем обновлённые данные в Firebase
     await dbSet(dbRef(`/schedules/${key}`), data);
 
-    // Обновляем интерфейс
-    renderTable();
+    await renderTable(data);
 
-    // Показываем уведомление об успехе
     Swal.fire({
       icon: "success",
       title: "Успешно!",
@@ -144,7 +149,6 @@ async function deleteEmployee(employeeIndex) {
   } catch (error) {
     console.error("Ошибка при удалении сотрудника из Firebase:", error);
 
-    // Показываем сообщение об ошибке
     Swal.fire({
       icon: "error",
       title: "Ошибка",
@@ -152,7 +156,6 @@ async function deleteEmployee(employeeIndex) {
     });
   }
 }
-
 
 // Эта функция дублирует строку сотрудника в графике, вставляя пустую строку ниже текущей
 async function duplicateEmployee(i) {
@@ -257,67 +260,135 @@ document.addEventListener('DOMContentLoaded', function() {
 // Эта функция вызывается при клике на кнопку применения шаблона для одного сотрудника
 var btnApplyTemplateForOne = document.getElementById("btnApplyTemplateForOne");
 btnApplyTemplateForOne.addEventListener("click", function() {
-    applyTemplateForOne('2_2');
+    applyTemplateForOne("2_2");
 });
 
 var btnApplyTemplateForOne4 = document.getElementById("btnApplyTemplateForOne4");
 btnApplyTemplateForOne4.addEventListener("click", function() {
-    applyTemplateForOne('4_2');
+    applyTemplateForOne("4_2");
 });
 
+//Назначение шаблона для одного сотрудника с выбором даты начала смен
 async function applyTemplateForOne(type) {
   const key = getKey();
 
   try {
-    // Загружаем текущие данные из Firebase
     const snapshot = await dbGet(dbRef(`/schedules/${key}`));
     let data = snapshot.exists() ? snapshot.val() : [];
+
+    if (!Array.isArray(data)) {
+      data = [];
+    }
 
     if (data.length === 0) {
       return Swal.fire({
         icon: "warning",
         title: "Внимание",
-        text: "Нет сотрудников!",
+        text: "Нет сотрудников в графике!",
         confirmButtonText: "OK"
       });
     }
 
-    // Применяем шаблон к каждому сотруднику
-    const startDay = 1; // Начинаем с первого дня месяца
-    data.forEach(employee => {
-      if (employee.id) { // Проверяем, что сотрудник выбран
-        applyPatternToEmployee(data, employee.id, type, startDay);
+    const patternName = type === "2_2" ? "2д/2в" : "4д/2в";
+
+    const result = await Swal.fire({
+      icon: "question",
+      title: `Шаблон ${patternName}`,
+      text: "Выберите дату начала смен",
+      input: "date",
+      inputValue:
+        currentDate.getFullYear() +
+        "-" +
+        String(currentDate.getMonth() + 1).padStart(2, "0") +
+        "-01",
+      showCancelButton: true,
+      confirmButtonText: "Применить",
+      cancelButtonText: "Отмена",
+      inputValidator: (value) => {
+        if (!value) {
+          return "Выберите дату начала";
+        }
+
+        const selectedDate = new Date(value + "T00:00:00");
+
+        if (
+          selectedDate.getFullYear() !== currentDate.getFullYear() ||
+          selectedDate.getMonth() !== currentDate.getMonth()
+        ) {
+          return "Выберите дату из текущего месяца графика";
+        }
+
+        return null;
       }
     });
 
-    // Сохраняем обновлённые данные в Firebase
-    await dbSet(dbRef(`/schedules/${key}`), data);
-    // Обновляем интерфейс
-    renderTable();
+    if (!result.isConfirmed) {
+      return;
+    }
 
-    // Показываем уведомление об успехе
+    const startDay = new Date(result.value + "T00:00:00").getDate();
+
+const employees = await getEmployees();
+
+const employeeOptions = {};
+
+data.forEach(row => {
+  const emp = employees.find(item => String(item.id) === String(row.id));
+
+  if (emp) {
+    employeeOptions[emp.id] = emp.name;
+  }
+});
+
+const employeeResult = await Swal.fire({
+  icon: "question",
+  title: "Выберите сотрудника",
+  input: "select",
+  inputOptions: employeeOptions,
+  inputPlaceholder: "Сотрудник",
+  showCancelButton: true,
+  confirmButtonText: "Далее",
+  cancelButtonText: "Отмена",
+  inputValidator: (value) => {
+    if (!value) {
+      return "Выберите сотрудника";
+    }
+
+    return null;
+  }
+});
+
+if (!employeeResult.isConfirmed) {
+  return;
+}
+
+const selectedEmployeeId = employeeResult.value;
+
+applyPatternToEmployee(data, selectedEmployeeId, type, startDay);
+
+    await dbSet(dbRef(`/schedules/${key}`), data);
+
+    await renderTable(data);
+
     Swal.fire({
       icon: "success",
       title: "Успешно!",
-      text: `Шаблон "${type}" применён ко всем сотрудникам`,
+      text: `Шаблон ${patternName} применён с ${startDay} числа`,
       timer: 2000,
       showConfirmButton: false
     });
 
     graphChanged = true;
   } catch (error) {
-    console.error("Ошибка при применении шаблона в Firebase:", error);
+    console.error("Ошибка при применении шаблона:", error);
 
-    // Показываем сообщение об ошибке
     Swal.fire({
       icon: "error",
       title: "Ошибка",
-      text: "Не удалось применить шаблон. Проверьте подключение к интернету."
+      text: "Не удалось применить шаблон."
     });
   }
 }
-
-
 
 // Эта функция вызывается при изменении сотрудника в строке и сохраняет новый ID сотрудника, не трогая смены
 async function changeEmployeeInRow(rowIndex, newEmployeeId) {
@@ -374,44 +445,78 @@ async function changeEmployeeInRow(rowIndex, newEmployeeId) {
   }
 }
 
-/* ——— КНОПКА СЕГОДНЯ ——— */
+/* ——— МЕСЯЦЫ и КНОПКА СЕГОДНЯ ——— */
+
 var todayBtn = document.getElementById("btnToDay");
-todayBtn.addEventListener("click", goToday);
-
-async function goToday() {
-    currentDate = new Date(); // Устанавливаем текущую дату (сегодня)
-    updatePicker();
-    await switchScheduleMonth(currentDate);
-}  
-
-/* ——— МЕСЯЦЫ ——— */
 var prevMonthBtn = document.getElementById("prevMonthBtn");
-var nextMonthBtn = document.getElementById("nextMonthBtn");     
+var nextMonthBtn = document.getElementById("nextMonthBtn");
+var monthPicker = document.getElementById("monthPicker");
+
+todayBtn.addEventListener("click", goToday);
 prevMonthBtn.addEventListener("click", prevMonth);
 nextMonthBtn.addEventListener("click", nextMonth);
 
+monthPicker.addEventListener("change", loadMonthFromPicker);
+monthPicker.addEventListener("input", loadMonthFromPicker);
+
+async function goToday() {
+    await switchScheduleMonth(new Date());
+}
+
 async function prevMonth() {
-    const selectedMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-    await switchScheduleMonth(selectedMonth);
+  const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+  await switchScheduleMonth(date);
 }
 
 async function nextMonth() {
-    const selectedMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
-    await switchScheduleMonth(selectedMonth);
+  const date = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+  await switchScheduleMonth(date);
 }
 
-var monthPicker = document.getElementById("monthPicker");
-monthPicker.addEventListener("change", loadMonthFromPicker);
-
 async function loadMonthFromPicker() {
-    let v = document.getElementById("monthPicker").value.split("-");
-    await switchScheduleMonth(new Date(v[0], v[1]-1, 1));
+  const value = monthPicker.value;
+
+  if (!value || !value.includes("-")) return;
+
+  const [year, month] = value.split("-").map(Number);
+
+  if (!year || !month) return;
+
+  await switchScheduleMonth(new Date(year, month - 1, 1));
 }
 
 function updatePicker() {
-    document.getElementById("monthPicker").value =
-        currentDate.getFullYear() + "-" + String(currentDate.getMonth()+1).padStart(2,"0");
+  monthPicker.value =
+    currentDate.getFullYear() +
+    "-" +
+    String(currentDate.getMonth() + 1).padStart(2, "0");
 }
+
+async function switchScheduleMonth(date) {
+  const selectedDate = new Date(date.getFullYear(), date.getMonth(), 1);
+
+  if (typeof setCurrentDate === "function") {
+    setCurrentDate(selectedDate);
+  } else {
+    currentDate = selectedDate;
+  }
+
+  updatePicker();
+
+  const data = await loadMonthDataFromFirebase();
+
+  await renderTable(data);
+
+  if (typeof renderNotes === "function") {
+    await renderNotes();
+  }
+
+  if (typeof initBatchForm === "function") {
+    await initBatchForm();
+  }
+}
+
+/* ——— МЕСЯЦЫ и КНОПКА СЕГОДНЯ конец——— */
 
 async function switchScheduleMonth(date) {
     if (typeof setCurrentDate === "function") {
@@ -493,27 +598,34 @@ async function removeEmployee() {
 // Эта функция применяет заданный шаблон к одному сотруднику, начиная с указанной даты
 
 function applyPatternToEmployee(data, employeeId, type, startDay) {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const days = new Date(year, month + 1, 0).getDate();
 
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const days = new Date(year, month + 1, 0).getDate();
+  const employee = data.find(e => String(e.id) === String(employeeId));
+  if (!employee) {
+    console.warn("Сотрудник не найден в графике:", employeeId, data);
+    return;
+  }
 
-    const employee = data.find(e => e.id === employeeId);
-    if (!employee) return;
+  if (!employee.shifts) employee.shifts = {};
 
-    if (!employee.shifts) employee.shifts = {};
+  let pattern = [];
 
-    let pattern = [];
+  if (type === "2_2") {
+    pattern = ["Д", "Д", "", ""];
+  }
 
-    if (type === "2_2") pattern = ["Д", "Д", "", ""];
-    if (type === "4_2") pattern = ["Р", "Р", "Р", "Р", "", ""];
+  if (type === "4_2") {
+    pattern = ["Р", "Р", "Р", "Р", "", ""];
+  }
 
-    let pos = 0;
+  let pos = 0;
 
-    for (let d = startDay; d <= days; d++) {
-        employee.shifts[d] = pattern[pos];
-        pos = (pos + 1) % pattern.length;
-    }
+  for (let d = startDay; d <= days; d++) {
+    employee.shifts[d] = pattern[pos];
+    pos = (pos + 1) % pattern.length;
+  }
 }
 
 async function initEmployeeSelect() {

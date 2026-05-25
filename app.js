@@ -5,10 +5,6 @@
 let graphChanged = false;
 let todayDate = new Date();
 
-window.currentDate = new Date();
-window.currentDate.setDate(1);
-
-
 document.getElementById("monthPicker").value =
     currentDate.getFullYear() + "-" + String(currentDate.getMonth()+1).padStart(2,"0");
 
