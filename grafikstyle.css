@@ -1050,3 +1050,192 @@ border-radius:4px;
 #btnCloseBath:hover {
     background: #d1d5db;
 }
+
+/*Календарь на сотрудника*/
+/* Календарь сотрудника */
+.employee-calendar-section {
+    width: min(760px, 96vw);
+    margin: 22px auto;
+    padding: 14px;
+    background: #d8f3f7;
+    border: 1px solid #9bd5de;
+    border-radius: 10px;
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18);
+}
+
+.employee-calendar-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.employee-calendar-toolbar h3 {
+    margin: 0;
+    color: #172033;
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+.employee-calendar-month {
+    margin: 3px 0 0;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.employee-calendar-select {
+    min-width: 220px;
+    min-height: 38px;
+    padding: 7px 10px;
+    border: 1px solid #8db5c0;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.employee-calendar-grid {
+    --employee-calendar-columns: 5;
+    display: grid;
+    grid-template-columns: 72px repeat(var(--employee-calendar-columns), minmax(76px, 1fr));
+    overflow: hidden;
+    border: 4px solid #111827;
+    background: #111827;
+    border-radius: 2px;
+}
+
+.employee-calendar-corner,
+.employee-calendar-week,
+.employee-calendar-day-label,
+.employee-calendar-cell {
+    border: 1px solid #c8c8c8;
+}
+
+.employee-calendar-corner,
+.employee-calendar-day-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #a98bdc;
+    color: #111827;
+    font-size: 28px;
+    font-weight: 900;
+}
+
+.employee-calendar-week {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    background: #c8c8c8;
+    color: #5c5c5c;
+    font-size: 28px;
+    font-weight: 900;
+}
+
+.employee-calendar-cell {
+    min-height: 82px;
+    padding: 6px 5px 5px;
+    background: #ffffff;
+    text-align: center;
+}
+
+.employee-calendar-cell.is-empty {
+    background: #ffffff;
+}
+
+.employee-calendar-cell.is-weekend {
+    background: #f9d9d9;
+}
+
+.employee-calendar-date {
+    display: inline-block;
+    color: #111827;
+    font-size: 28px;
+    line-height: 1;
+    border-bottom: 2px solid currentColor;
+}
+
+.employee-calendar-cell.is-weekend .employee-calendar-date {
+    color: #d3162b;
+}
+
+.employee-calendar-shift {
+    min-height: 29px;
+    margin-top: 9px;
+    padding: 4px 6px;
+    border: 1px solid #6684ad;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #a9c9f7 0%, #8fb5ed 100%);
+    color: #10203f;
+    font-size: 17px;
+    font-weight: 900;
+    line-height: 1.15;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.employee-calendar-shift.is-day-off {
+    color: transparent;
+}
+
+.employee-calendar-loading,
+.employee-calendar-empty {
+    grid-column: 1 / -1;
+    padding: 22px;
+    background: #ffffff;
+    color: #475569;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+@media (max-width: 620px) {
+    .employee-calendar-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .employee-calendar-select {
+        width: 100%;
+    }
+
+    .employee-calendar-section {
+        padding: 8px;
+    }
+
+    .employee-calendar-grid {
+        grid-template-columns: 48px repeat(var(--employee-calendar-columns), minmax(56px, 1fr));
+        overflow-x: auto;
+    }
+
+    .employee-calendar-day-label {
+        font-size: 20px;
+    }
+
+    .employee-calendar-week,
+    .employee-calendar-date {
+        font-size: 21px;
+    }
+
+    .employee-calendar-cell {
+        min-height: 70px;
+        padding: 5px 3px;
+    }
+
+    .employee-calendar-shift {
+        min-height: 25px;
+        font-size: 14px;
+    }
+}
+
+.employee-calendar-section[hidden] {
+    display: none;
+}
+
+.employee-calendar-section {
+    scroll-margin-top: 90px;
+}

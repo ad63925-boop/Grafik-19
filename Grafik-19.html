@@ -251,6 +251,19 @@
 
 </div>
 
+ <!-- График сотрудника -->
+<section id="employeeCalendarSection" class="employee-calendar-section" hidden>
+  <div class="employee-calendar-toolbar">
+    <div>
+      <h3 id="employeeCalendarTitle">График сотрудника</h3>
+      <p id="employeeCalendarMonthName" class="employee-calendar-month">Загрузка...</p>
+    </div>
+
+    <select id="employeeCalendarSelect" class="employee-calendar-select"></select>
+  </div>
+
+  <div id="employeeCalendarGrid" class="employee-calendar-grid"></div>
+</section>
 
  <!-- База сотрудников -->
 <div id="employeesPanel" class="panel-visible" style="margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:8px;">
@@ -291,6 +304,7 @@
 <script src="app.js"></script>
 <script src="js/note.js"></script>
 <script src="notify_alarm.js"></script>
+<script src="calendar.js"></script>
 
 
 <!-- 5. Меню (в конце, после всего основного кода) -->

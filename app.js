@@ -230,7 +230,7 @@ async function applyBatchShifts() {
   graphChanged = true;
   await renderTable(data);
   closeBatchForm();
-
+  
   showNotification("success", `Смена "${shift}" назначена на ${dates.length} дн.`);
 }
 

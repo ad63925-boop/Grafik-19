@@ -507,6 +507,10 @@ async function switchScheduleMonth(date) {
 
   await renderTable(data);
 
+  if (typeof renderEmployeeCalendar === "function") {
+  await renderEmployeeCalendar();
+}
+
   if (typeof renderNotes === "function") {
     await renderNotes();
   }
@@ -535,6 +539,7 @@ async function switchScheduleMonth(date) {
     await renderNotes();
 }
 }
+
 
 //Удаление сотрудника по id
 async function deleteEmployeeForID(employeeId) {
