@@ -364,7 +364,9 @@ td:nth-child(2) {
     .notes-toolbar,
     .notes-list,
     .btn-option-edit,
-    .btn-option-delete {
+    .btn-option-delete,
+    .tomorrow-alarm-box,
+    .employee-calendar-section {
         display: none !important;
     }
 
