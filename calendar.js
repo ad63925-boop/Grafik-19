@@ -7,13 +7,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function initEmployeeCalendar() {
   const select = document.getElementById("employeeCalendarSelect");
+  const monthPicker = document.getElementById("employeeCalendarMonthPicker");
 
-  if (!select) return;
+  if (!select || !monthPicker) return;
+
+  monthPicker.value = getEmployeeCalendarMonthValue(currentDate);
 
   select.addEventListener("change", renderEmployeeCalendar);
+  monthPicker.addEventListener("change", renderEmployeeCalendar);
+  monthPicker.addEventListener("input", renderEmployeeCalendar);
 
   await fillEmployeeCalendarSelect();
   await renderEmployeeCalendar();
+}
+
+function getEmployeeCalendarSelectedDate() {
+  const monthPicker = document.getElementById("employeeCalendarMonthPicker");
+  const value = monthPicker?.value;
+
+  if (!value || !value.includes("-")) {
+    return new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  }
+
+  const [year, month] = value.split("-").map(Number);
+
+  if (!year || !month) {
+    return new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  }
+
+  return new Date(year, month - 1, 1);
+}
+
+function getEmployeeCalendarMonthValue(date) {
+  return (
+    date.getFullYear() +
+    "-" +
+    String(date.getMonth() + 1).padStart(2, "0")
+  );
+}
+
+function getScheduleKeyForEmployeeCalendar(date) {
+  return (
+    "schedule_" +
+    date.getFullYear() +
+    "_" +
+    String(date.getMonth() + 1).padStart(2, "0")
+  );
 }
 
 function initEmployeeCalendarToggle() {
@@ -68,25 +107,29 @@ async function renderEmployeeCalendar() {
   const grid = document.getElementById("employeeCalendarGrid");
   const select = document.getElementById("employeeCalendarSelect");
   const title = document.getElementById("employeeCalendarTitle");
-  const monthName = document.getElementById("employeeCalendarMonthName");
+  const monthPicker = document.getElementById("employeeCalendarMonthPicker");
 
-  if (!grid || !select || !title || !monthName) return;
+  if (!grid || !select || !title || !monthPicker) return;
 
+  const selectedDate = getEmployeeCalendarSelectedDate();
   const employeeId = select.value;
   const employeeName = select.options[select.selectedIndex]?.textContent || "Сотрудник";
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
+  const year = selectedDate.getFullYear();
+  const month = selectedDate.getMonth();
 
   title.textContent = `График: ${employeeName}`;
-  monthName.textContent = currentDate.toLocaleDateString("ru-RU", {
-    month: "long",
-    year: "numeric"
-  });
+
+  if (!monthPicker.value) {
+    monthPicker.value = getEmployeeCalendarMonthValue(selectedDate);
+  }
 
   grid.innerHTML = '<div class="employee-calendar-loading">Загрузка графика...</div>';
 
   try {
-    const data = await loadMonthDataFromFirebase();
+    const key = getScheduleKeyForEmployeeCalendar(selectedDate);
+    const snapshot = await dbGet(dbRef(`/schedules/${key}`));
+    const data = snapshot.exists() ? snapshot.val() : [];
+
     const schedule = Array.isArray(data) ? data : [];
     const employeeRow = schedule.find(row => String(row.id) === String(employeeId));
     const shifts = employeeRow?.shifts || {};
@@ -133,18 +176,34 @@ function drawEmployeeCalendarGrid(grid, year, month, shifts) {
         return;
       }
 
-      const shift = shifts[day] || "";
+const shift = shifts[day] || "";
 
-      if (rowIndex >= 5) {
-        cell.classList.add("is-weekend");
-      }
+const today = new Date();
+const isToday =
+  day === today.getDate() &&
+  month === today.getMonth() &&
+  year === today.getFullYear();
 
-      cell.innerHTML = `
-        <div class="employee-calendar-date">${day}</div>
-        <div class="employee-calendar-shift ${shift ? "" : "is-day-off"}">
-          ${getCalendarShiftLabel(shift)}
-        </div>
-      `;
+if (rowIndex >= 5) {
+  cell.classList.add("is-weekend");
+}
+
+if (isToday) {
+  cell.classList.add("is-today");
+}
+
+if (shift) {
+  cell.classList.add("is-workday");
+} else {
+  cell.classList.add("is-day-off");
+}
+
+cell.innerHTML = `
+  <div class="employee-calendar-date">${day}</div>
+  <div class="employee-calendar-shift ${shift ? "" : "is-empty-shift"}">
+    ${getCalendarShiftLabel(shift)}
+  </div>
+`;
 
       grid.appendChild(cell);
     });
