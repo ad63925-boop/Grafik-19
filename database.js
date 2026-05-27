@@ -128,9 +128,11 @@ function syncMonth() {
     return;
   }
 
-  if (currentSyncSubscription) {
-    currentSyncSubscription();
-  }
+if (typeof currentSyncSubscription === "function") {
+  currentSyncSubscription();
+}
+
+currentSyncSubscription = null;
 
   console.log("Синхронизация с ключом:", key);
   currentSyncSubscription = dbOnValue(dbRef(`/schedules/${key}`), (snapshot) => {
@@ -142,10 +144,11 @@ function syncMonth() {
 
 // Функция для остановки синхронизации
 function stopSyncMonth() {
-  if (currentSyncSubscription) {
+  if (typeof currentSyncSubscription === "function") {
     currentSyncSubscription();
-    currentSyncSubscription = null;
   }
+
+  currentSyncSubscription = null;
 }
 
 

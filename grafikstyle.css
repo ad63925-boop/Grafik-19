@@ -25,9 +25,11 @@
 		width: auto;
     }
 
-    h2 {
+    #a4 h2 {
         text-align: center;
         font-size: 26px;
+        color: silver;
+        margin: 5px;
     }
 
     /* ---------- Таблица ---------- */
@@ -149,7 +151,7 @@
 	padding: 1px;
     margin: 3px;
     box-shadow: -1px 2px 15px 3px black;
-    z-index: 99999;
+    z-index: 1;
     top: 25%;
     right: calc(50% - 125px);
     height: 450px;
@@ -205,7 +207,7 @@ td:first-child {
     position: sticky;
     left: 0;
     background: white;
-    z-index: 10000;
+    z-index: 1;
     box-shadow: 2px 0 0 black; /* имитация правой границы */
 }
 
@@ -215,7 +217,7 @@ td:nth-child(2) {
     position: sticky;
     left: 0px;
     background: white;
-    z-index: 10000;
+    z-index: 1;
     box-shadow: 2px 0 0 black;
 }
 
@@ -404,7 +406,6 @@ td:nth-child(2) {
         print-color-adjust: exact;
     }
 }
-
 
 /* ---------- ЦВЕТА СМЕН ---------- */
 .shift-Д { background-color: silver; }  /* День */
@@ -606,10 +607,9 @@ td:nth-child(2) {
 
 .panel-visible {
     display: none;
-    background-color: white;
+    background-color: #d3f5fa;
     box-shadow: 1px 2px 3px 1px #000000;
-    margin: 20px;
-    min-width: 400px;
+    margin: 22px auto;
 }
 
 .panel-visible h3 {
@@ -660,33 +660,47 @@ border-radius:4px;
 }
 
 .btn-option-edit {
-    background-color: #ffc107;
     color: rgb(39, 113, 240);
-    border-radius: 5px;
     width: 30px;
 }    
 
 .btn-option-delete {
-    background-color: red;
-    color: white;
-    border-radius: 5px;
+    color: red;
     width: 30px;
 }
 
+.btn-option-edit:hover, .btn-option-delete:hover {
+    color: white;
+    background-color: #2196F3;
+    cursor: pointer;
+}
+
 /*Заметки*/
+.notes-section {
+    width: min(720px, 96vw);
+    margin: 22px auto;
+    padding: 14px;
+    background: #d8f3f7;
+    border: 1px solid #9bd5de;
+    border-radius: 10px;
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18);
+}
+
+.notes-section h3 {
+    text-align: center;
+    margin: 0 0 12px;
+    color: #172033;
+    font-size: 20px;
+    line-height: 1.2;
+}
+
 .notes-toolbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     align-items: center;
     gap: 12px;
     margin: 22px 0 12px;
     padding: 0 4px;
-}
-
-.notes-toolbar h3 {
-    margin: 0;
-    font-size: 22px;
-    color: #202124;
 }
 
 .note-form {
@@ -792,11 +806,12 @@ border-radius:4px;
 
 .note-meta {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 10px 16px;
     margin-top: 12px;
     color: #64748b;
     font-size: 13px;
+    flex-direction: column;
 }
 
 .note-meta span {
@@ -809,6 +824,8 @@ border-radius:4px;
     display: flex;
     gap: 8px;
     align-items: flex-start;
+    justify-content: space-evenly;
+    margin: 5px;
 }
 
 .note-action-btn {
@@ -1066,7 +1083,7 @@ border-radius:4px;
     box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18);
 }
 
-.employee-calendar-toolbar {
+.employee-calendar-toolbar div{
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1075,10 +1092,8 @@ border-radius:4px;
 }
 
 .employee-calendar-toolbar h3 {
-    margin: 0;
-    color: #172033;
-    font-size: 20px;
-    line-height: 1.2;
+    margin: 5px;
+    font-size: 2rem;
 }
 
 .employee-calendar-month {
@@ -1302,4 +1317,9 @@ border-radius:4px;
     outline: none;
     border-color: #1976d2;
     box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.14);
+}
+
+.employee-calendar-month-picker:hover {
+    background: #1976d2;
+    cursor: pointer;
 }

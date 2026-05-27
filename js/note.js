@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnShowNoteForm = document.getElementById("btnShowNoteForm");
   const btnCloseNoteForm = document.getElementById("btnCloseNoteForm");
   const btnSaveNote = document.getElementById("btnSaveNote");
-const btnShowAllNotes = document.getElementById("btnShowAllNotes");
+  const btnShowAllNotes = document.getElementById("btnShowAllNotes");
 
 btnShowAllNotes?.addEventListener("click", toggleShowAllNotes);
   btnShowNoteForm?.addEventListener("click", openCreateNoteForm);
@@ -158,6 +158,8 @@ async function deleteNote(noteId) {
 }
 
 async function renderNotes() {
+  updateNotesMonthTitle();
+  
   const container = document.getElementById("notesList");
   if (!container) return;
 
@@ -249,6 +251,19 @@ function formatDateTime(value) {
     hour: "2-digit",
     minute: "2-digit"
   });
+}
+
+// Обновление заголовка месяца при загрузке страницы и при смене месяца
+function updateNotesMonthTitle() {
+  const title = document.getElementById("notesMonthTitle");
+  if (!title) return;
+
+  const monthName = currentDate.toLocaleDateString("ru-RU", {
+    month: "long",
+    year: "numeric"
+  });
+
+  title.textContent = `Заметки на ${monthName}`;
 }
 
 function escapeHtml(value) {

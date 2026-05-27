@@ -106,18 +106,15 @@ async function fillEmployeeCalendarSelect() {
 async function renderEmployeeCalendar() {
   const grid = document.getElementById("employeeCalendarGrid");
   const select = document.getElementById("employeeCalendarSelect");
-  const title = document.getElementById("employeeCalendarTitle");
   const monthPicker = document.getElementById("employeeCalendarMonthPicker");
 
-  if (!grid || !select || !title || !monthPicker) return;
+  if (!grid || !select || !monthPicker) return;
 
   const selectedDate = getEmployeeCalendarSelectedDate();
   const employeeId = select.value;
   const employeeName = select.options[select.selectedIndex]?.textContent || "Сотрудник";
   const year = selectedDate.getFullYear();
   const month = selectedDate.getMonth();
-
-  title.textContent = `График: ${employeeName}`;
 
   if (!monthPicker.value) {
     monthPicker.value = getEmployeeCalendarMonthValue(selectedDate);

@@ -52,14 +52,14 @@
     <button class="btn-graf" id="nextMonthBtn">
       <i class="fa-solid fa-chevron-right"></i>
     </button>
-    <button class="btn-graf" id="btnToDay">
-      <i class="fa-solid fa-calendar-days"></i>
+    <button class="btn-graf" id="btnToDay" title="Сегодня">
+      <i class="fa-solid fa-calendar-day"></i>
     </button>
-	<button class="btn-graf" id="btnSetting" >
+	<button class="btn-graf" id="btnSetting" title="Настройки">
     <i class="fa-solid fa-gear"></i>
   </button>
-      <button id="toggleViewBtn" class="btn-graf">
-        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+      <button id="toggleViewBtn" class="btn-graf" title="Переключить вид графика">
+        <i class="fa-regular fa-calendar-days"></i>
       </button>
 </div>
 
@@ -76,20 +76,23 @@
 <br>
 <!-- Блок с напоминаниями на завтра -->
 <div id="tomorrowAlarmBox" class="tomorrow-alarm-box" hidden></div>
-<br>
-<hr>
-<br>
+
+</div><!-- A4 конец-->
 
 <!-- Заметки -->
+<div id="notesSection" class="notes-section"> 
+
+<h3 id="notesMonthTitle">Заметки</h3>
+ 
 <div class="notes-toolbar">
-  <h3>Заметки</h3>
+  
 
     <button class="btn-graf" id="btnShowAllNotes">
-    <i class="fa-solid fa-list"></i> Показать все заметки
+    <i class="fa-solid fa-list"></i> Все
   </button>
 
   <button class="btn-graf" id="btnShowNoteForm">
-    <i class="fa-solid fa-note-sticky"></i> Добавить заметку
+    <i class="fa-regular fa-square-plus"></i> Добавить
   </button>
 </div>
 
@@ -114,6 +117,7 @@
 </div>
 
 <div id="notesList" class="notes-list"></div>
+</div>
 
 <!-- График на одного охраника -->
 <div id="calendarView" hidden>
@@ -131,10 +135,6 @@
 
   <div class="calendar-grid" id="calendarGrid"></div>
 </div>
-
-<br>
-
-</div><!-- A4 -->
 
 <!-- Панель настроек -->
 <div id="panelSeting" class="is-hidden">
@@ -186,8 +186,8 @@
 	<div class="panel">
 	<label for="printScale">Выберите размер печати:</label>
     <select id="printScale" class="printScale">
-        <option value="0.6">Маленький</option>
-        <option value="0.8" selected>Средний</option>
+        <option value="0.6" selected>Маленький</option>
+        <option value="0.8">Средний</option>
         <option value="1">Большой</option>
     </select>
     <label for="copiInput">Копии:</label>
@@ -254,14 +254,18 @@
  <!-- График сотрудника -->
 <section id="employeeCalendarSection" class="employee-calendar-section" hidden>
   <div class="employee-calendar-toolbar">
+    
+    <h3 id="employeeCalendarTitle">График на сотрудника</h3>
+    
     <div>
       
       <input type="month" id="employeeCalendarMonthPicker" class="employee-calendar-month-picker">
       
-      <h3 id="employeeCalendarTitle">График на сотрудника</h3>
+      <select id="employeeCalendarSelect" class="employee-calendar-select"></select>
+      
     </div>
 
-    <select id="employeeCalendarSelect" class="employee-calendar-select"></select>
+
   </div>
 
   <div id="employeeCalendarGrid" class="employee-calendar-grid"></div>
